@@ -3,12 +3,14 @@ import time
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 16})
 from citylearn.citylearn import CityLearnEnv
+from agents.brute_force_day_agent import BruteForceAgent, BruteForceLastAgent
+
 
 
 
 ####################################################################################################
 ##                                                                                                ##
-##                                        VISUALIZATION TOOLS                                     ##
+##                                      VISUALIZATION TOOLS                                       ##
 ##                                                                                                ##
 ####################################################################################################
 
@@ -209,5 +211,4 @@ def rb_evaluate(CoordinatorClass, AgentClass, eval_constants, verbose=True):
         print("Average Grid Cost:", np.mean([e['grid_cost'] for e in episode_metrics]))
         for e in episode_metrics:
             print(f"Episode Utility: {np.mean(list(e.values()))}")
-        print(np.sum(env.net_electricity_consumption_without_storage))
     return env, rb_coordinator, episode_metrics, time.process_time() - start_time
