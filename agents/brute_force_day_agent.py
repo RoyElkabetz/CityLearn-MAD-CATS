@@ -2,15 +2,13 @@ import numpy as np
 from battery.battery_model_new import Battery
 from battery.battery_model import BatteryTransitionWrapper
 from battery.tree_search import ucs
-from gym.spaces.box import Box
 from agents.battery_model_rb_agent import BatteryModelRBAgent
 from predictors.predictors_wrapper import PredictorsWrapper
 
 
 class BruteForceAgent:
     def __init__(self, search_depths=(0, 1, 2, 3), d_action: float = 0.3, max_search_time: float = 0.2,
-                 default_action: float = 0., utility_weighting=(1., 1., 1., 1.), action_space_list=None,
-                 prediction_method="MLP",
+                 utility_weighting=(1., 1., 1., 1.), action_space_list=None, prediction_method="MLP",
                  *args, **kwargs):
         """
         A Rule-based brute force planning agent. The agent uses predictive models of the environment and its own
@@ -79,7 +77,7 @@ class BruteForceAgent:
         self.agent_id = agent_id
         self.init_agent()
 
-    def compute_action(self, observation, agent_id):
+    def compute_local_planner_action(self, observation, agent_id):
         """
         Gets observation return an action.
         Args:
@@ -138,12 +136,13 @@ class BruteForceAgent:
         indexed_observation = np.append(self.history[-1, 0], observation)
         self.history = np.concatenate((self.history[1:, :], indexed_observation.reshape(1, -1)), axis=0)
 
-    def predict_world(self):
+    def predict_world(self, consumption_only=False):
         """
         All variables are 1 dimensional of 'prediction_depth' elements.
         Returns: predictions and their derivatives
         """
-        return self.world_predictors.predict(history=self.history, prediction_depth=self.prediction_depth)
+        return self.world_predictors.predict(history=self.history, prediction_depth=self.prediction_depth,
+                                             consumption_only=consumption_only)
 
     def rollout(self):
         """
@@ -365,15 +364,5 @@ class BruteForceLastAgent:
         assert action_space.contains(action)
         self.battery.update_soc(action[0])
         return action
-
-
-if __name__ == "__main__":
-    observation = np.random.rand(28)
-    agent_id = 1
-
-    agent = BruteForceAgent(search_depths=[0, 1, 2, 7, 21, 22], d_action=0.1)
-    agent.set_action_space(agent_id=agent_id, action_space=Box(high=1., low=-1, shape=(1,), dtype=float))
-    action = agent.compute_action(observation, agent_id)
-    print(action)
 
 

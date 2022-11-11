@@ -17,7 +17,7 @@ def dict_to_box(x):
 class RBDecentralizedCoordinator:
     def __init__(self, base_decision_maker, obs_dict, random_order=False, agent_type="RB-local",
                  last_agent_type="RB-local", *args, **kwargs):
-        assert agent_type in ("RB-local", "PLAN-local")
+        assert agent_type in ("RB-local", "RB-global", "PLAN-local")
         assert last_agent_type in ("RB-local", "RB-global", "PLAN-local", "PLAN-global")
         self.base_decision_maker = base_decision_maker
         self.obs_dict = obs_dict
@@ -86,43 +86,50 @@ class RBDecentralizedCoordinator:
         predicted_rest_district_next_net_consumption = 0.
         rest_district_actions_sum_kwh = 0.
 
-        actions = []
+        actions = [[0.0]] * self.num_buildings
         if self.random_order:
-            actions = [[0.0]] * self.num_buildings
-            new_order = self.get_random_order()
-            for i, agent_id in enumerate(new_order):
-                prev_district_net_cons += observations[agent_id][23]
-                if i >= self.num_buildings - 1:
-                    if self.last_agent_type == "RB-local":
-                        action = self.decision_makers[agent_id].compute_local_rb_action(observations[agent_id],
-                                                                                        agent_id)
-                    elif self.last_agent_type == "RB-global":
-                        action = self.decision_makers[agent_id].compute_global_rb_action(
-                            observation=observations[agent_id],
-                            agent_id=agent_id,
-                            rest_district_net_cons_prediction=(rest_district_actions_sum_kwh + predicted_rest_district_next_net_consumption),
-                            prev_rest_district_net_cons=prev_district_net_cons)
-                    elif self.last_agent_type == "PLAN-local":
-                        action = self.decision_makers[agent_id].compute_action(observations[agent_id], agent_id)
-                    elif self.last_agent_type == "PLAN-global":
-                        raise NotImplementedError
-
-                else:
-                    if self.agent_type == "RB-local":
-                        action = self.decision_makers[agent_id].compute_local_rb_action(observations[agent_id],
-                                                                                        agent_id)
-                    elif self.agent_type == "PLAN-local":
-                        action = self.decision_makers[agent_id].compute_action(observations[agent_id], agent_id)
-
-                rest_district_actions_sum_kwh += action[0] * self.decision_makers[agent_id].battery.capacity
-                predicted_rest_district_next_net_consumption += \
-                self.decision_makers[agent_id].predict_world()["building_net_consumption"][0]
-                actions[agent_id] = action
-
+            agents_order = self.get_random_order()
         else:
-            for agent_id in range(self.num_buildings):
-                action = self.decision_makers[agent_id].compute_local_action(observations[agent_id], agent_id)
-                actions.append(action)
+            agents_order = np.arange(self.num_buildings)
+
+        for i, agent_id in enumerate(agents_order):
+            prev_district_net_cons += observations[agent_id][23]
+            action = [0]
+            if i >= self.num_buildings - 1:
+                if self.last_agent_type == "RB-local":
+                    action = self.decision_makers[agent_id].compute_local_rb_action(observations[agent_id],
+                                                                                    agent_id)
+                elif self.last_agent_type == "RB-global":
+                    action = self.decision_makers[agent_id].compute_global_rb_action(
+                        observation=observations[agent_id],
+                        agent_id=agent_id,
+                        rest_district_net_cons_prediction=(rest_district_actions_sum_kwh +
+                                                           predicted_rest_district_next_net_consumption),
+                        prev_rest_district_net_cons=prev_district_net_cons)
+                elif self.last_agent_type == "PLAN-local":
+                    action = self.decision_makers[agent_id].compute_local_planner_action(observations[agent_id], agent_id)
+                elif self.last_agent_type == "PLAN-global":
+                    raise NotImplementedError
+            else:
+                if self.agent_type == "RB-local":
+                    action = self.decision_makers[agent_id].compute_local_rb_action(observations[agent_id],
+                                                                                    agent_id)
+                elif self.agent_type == "RB-global":
+                    action = self.decision_makers[agent_id].compute_global_rb_action(
+                        observation=observations[agent_id],
+                        agent_id=agent_id,
+                        rest_district_net_cons_prediction=(rest_district_actions_sum_kwh +
+                                                           predicted_rest_district_next_net_consumption),
+                        prev_rest_district_net_cons=prev_district_net_cons)
+                elif self.agent_type == "PLAN-local":
+                    action = self.decision_makers[agent_id].compute_local_planner_action(observations[agent_id], agent_id)
+                elif self.agent_type == "PLAN-global":
+                    raise NotImplementedError
+
+            rest_district_actions_sum_kwh += action[0] * self.decision_makers[agent_id].battery.capacity
+            predicted_rest_district_next_net_consumption += \
+            self.decision_makers[agent_id].predict_world()["building_net_consumption"][0]
+            actions[agent_id] = action
 
         return actions
 
@@ -280,7 +287,7 @@ class RBLastAgentDecentralizedCoordinator:
         """
         actions = []
         for agent_id in self.decision_makers.keys():
-            action = self.decision_makers[agent_id].compute_local_action(observations[agent_id], agent_id)
+            action = self.decision_makers[agent_id].compute_action(observations[agent_id], agent_id)
             actions.append(action)
 
             # update the world predictor with the agent's action
