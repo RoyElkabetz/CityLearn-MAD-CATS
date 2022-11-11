@@ -80,7 +80,7 @@ class PredictorsWrapper:
         }
         return world_model
 
-    def predict(self, history, prediction_depth=24):
+    def predict(self, history, prediction_depth=24, consumption_only=False):
         """
         Predict the next 24 hours agent's + environment behaviour.
         Args:
@@ -112,16 +112,21 @@ class PredictorsWrapper:
                                                                     known_building=self.known_building)
             building_d_net_cons = np.diff(np.concatenate((np.array([history[-1, idx_obs_net_consumption]]),
                                                           building_net_cons)))
-
-        predictions = {
-            "carbon": self.world_predictor["carbon"][idx:idx + prediction_depth],
-            "carbon_mean": self.world_predictor["carbon_mean"][idx:idx + prediction_depth],
-            "pricing": self.world_predictor["pricing"][idx:idx + prediction_depth],
-            "d_carbon": self.world_predictor["d_carbon"][idx:idx + prediction_depth],
-            "d_pricing": self.world_predictor["d_pricing"][idx:idx + prediction_depth],
-            "building_net_consumption": building_net_cons[:prediction_depth],
-            "building_d_net_consumption": building_d_net_cons[:prediction_depth]
-        }
+        if consumption_only:
+            predictions = {
+                "building_net_consumption": building_net_cons[:prediction_depth],
+                "building_d_net_consumption": building_d_net_cons[:prediction_depth]
+            }
+        else:
+            predictions = {
+                "carbon": self.world_predictor["carbon"][idx:idx + prediction_depth],
+                "carbon_mean": self.world_predictor["carbon_mean"][idx:idx + prediction_depth],
+                "pricing": self.world_predictor["pricing"][idx:idx + prediction_depth],
+                "d_carbon": self.world_predictor["d_carbon"][idx:idx + prediction_depth],
+                "d_pricing": self.world_predictor["d_pricing"][idx:idx + prediction_depth],
+                "building_net_consumption": building_net_cons[:prediction_depth],
+                "building_d_net_consumption": building_d_net_cons[:prediction_depth]
+            }
 
         return predictions
 
