@@ -1,2 +1,2 @@
-# citylearn_multi_agent_smartgrid
+# CityLearn Multi-Agent Smart-Grid
  
