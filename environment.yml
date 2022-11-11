@@ -1,0 +1,16 @@
+name: city_learn
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - numpy
+  - scipy
+  - jupyterlab
+  - pytorch
+  - matplotlib==3.5.2
+  - tqdm
+  - pip
+  #- mkl < 2022 # needed for intel's math kernel library to be mac M1 compatible (https://stackoverflow.com/a/71640311/15826250)
+  - pip:
+      - git+https://github.com/intelligent-environments-lab/CityLearn.git@v1.3.6
