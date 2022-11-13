@@ -16,8 +16,8 @@ class ConsPredictors:
         if self.method == "DOT":
             self.norm_vec = np.load('data/net_consumption_norm24.npy')
         elif self.method == "MLP":
-            from data_preprocessing import DataPreprocessing
-            from cons_mlp.mlp_model import MLP
+            from net_consumption_mlp.data_preprocessing import DataPreprocessing
+            from net_consumption_mlp.mlp_model import MLP
             import torch
 
             self.input_len = 24

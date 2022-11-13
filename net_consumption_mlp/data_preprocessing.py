@@ -3,7 +3,6 @@ import pandas as pd
 import torch
 
 
-
 class DataPreprocessing:
     """
     This class handles the data preprocessing for the LSTM model.
@@ -31,9 +30,9 @@ class DataPreprocessing:
             self.device = torch.device('cpu')
 
         self.sqrt_weights_for_loss = torch.tensor(np.sqrt(np.exp(- np.arange(0, prediction_depth)
-                                                                 / prediction_depth * 2) /
-                                                          sum(np.exp(- np.arange(0, prediction_depth) /
-                                                                     prediction_depth * 2))), device=self.device)
+                                                                 / prediction_depth * 2)), device=self.device)
+        # / sum(np.exp(- np.arange(0, prediction_depth) /
+        #            prediction_depth * 2))), device=self.device)
 
     def get_total_dataset_len(self) -> int:
         return self.total_dataset_len
@@ -273,7 +272,8 @@ class DataPreprocessing:
             net_consumption: the net consumption, of shape [prediction_depth]
 
         """
-        return self.min_max_denorm(prediction.detach().numpy(), self.NET_CONSUMPTION_NORM_A, self.NET_CONSUMPTION_NORM_B)
+        return self.min_max_denorm(prediction.detach().numpy(), self.NET_CONSUMPTION_NORM_A,
+                                   self.NET_CONSUMPTION_NORM_B)
 
     def sqrt_weight(self, input_vec: np.ndarray) -> np.ndarray:
         return input_vec * self.sqrt_weights_for_loss
