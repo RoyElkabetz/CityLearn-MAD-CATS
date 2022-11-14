@@ -199,7 +199,7 @@ class BruteForceAgent:
         return action
 
 
-class BruteForceLastAgent:
+class BruteForceWeighedAgent:
     def __init__(self, search_depths=(0, 1, 2, 3), d_action: float = 0.3, max_search_time: float = 0.2,
                  plan_steps: int = 1, default_action: float = 0., num_buildings=None,
                  utility_weighting=(1., 1., 1., 1.), action_space_list=None, predictor=None,

@@ -211,7 +211,7 @@ class RBDecentralizedCoordinator:
                     np.round(self.scores_and_metrics['best_avg_scores'], 3)))
 
 
-class RBLastAgentDecentralizedCoordinator:
+class RBWeighedDecentralizedCoordinator:
     def __init__(self, base_decision_maker, obs_dict, input_length: int = None, *args, **kwargs):
         self.base_decision_maker = base_decision_maker
         self.obs_dict = obs_dict

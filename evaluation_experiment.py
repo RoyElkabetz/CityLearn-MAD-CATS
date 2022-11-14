@@ -2,8 +2,8 @@ from utils import rb_evaluate
 import numpy as np
 import pandas as pd
 from agents.battery_model_rb_agent_ import BatteryModelRBAgent
-from agents.brute_force_day_agent import BruteForceLastAgent, BruteForceAgent
-from agents.controller import RBLastAgentDecentralizedCoordinator, RBDecentralizedCoordinator
+from agents.brute_force_day_agent import BruteForceWeighedAgent, BruteForceAgent
+from agents.controller import RBWeighedDecentralizedCoordinator, RBDecentralizedCoordinator
 import random
 
 

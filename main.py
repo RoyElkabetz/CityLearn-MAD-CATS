@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 from utils import rb_evaluate
 plt.rcParams.update({'font.size': 16})
-from agents.brute_force_day_agent import BruteForceAgent, BruteForceLastAgent
-from agents.controller import RBDecentralizedCoordinator, RBLastAgentDecentralizedCoordinator
+from agents.brute_force_day_agent import BruteForceAgent, BruteForceWeighedAgent
+from agents.controller import RBDecentralizedCoordinator, RBWeighedDecentralizedCoordinator
 
 
 # Define the number of episodes being played and the schema
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     #                                                                     verbose=verbos)
 
     verbos = True
-    env, rl_coordinator, episode_metrics, evaluation_time = rb_evaluate(RBLastAgentDecentralizedCoordinator,
-                                                                        BruteForceLastAgent,
+    env, rl_coordinator, episode_metrics, evaluation_time = rb_evaluate(RBWeighedDecentralizedCoordinator,
+                                                                        BruteForceWeighedAgent,
                                                                         EvalConstantsLast,
                                                                         verbose=verbos)

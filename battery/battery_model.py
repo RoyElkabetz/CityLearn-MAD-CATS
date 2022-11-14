@@ -448,8 +448,6 @@ class BatteryTransitionWrapper(Battery):
         return self.next_state, inst_u, None, False
 
 
-
-
 def main():
     power_curve = [[0., 0.6, 1.0], [1.0, 0.95, 0.43]]
     efficiency_curve = [[0., 0.2, 0.6, 1.], [0.84, 0.87, 0.95, 0.91]]

@@ -3,7 +3,7 @@ import time
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 16})
 from citylearn.citylearn import CityLearnEnv
-from agents.brute_force_day_agent import BruteForceAgent, BruteForceLastAgent
+from agents.brute_force_day_agent import BruteForceAgent, BruteForceWeighedAgent
 
 
 
