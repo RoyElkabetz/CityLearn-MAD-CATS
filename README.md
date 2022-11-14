@@ -22,10 +22,43 @@ We use a tree search algorithm, which is a modified Dijkstra's algorithm, to fin
 
 ### Special tricks and spices
 
-### Alternative simplified solutions
+#### Battery model
+
+#### Local utility estimation
+The utility is a function of the net consumption, which is only evaluated at the end of the year (episode).
+However, the predictions and actions are made at each step, so we need to estimate the utility at each step.
+For this purpose, we use an instantaneous utility estimation, which is an approximation of the utility function.
+
+TODO: Explain each term in the utility estimation.
+
+There is a couple of estimators.
+The first one uses for a single building, independent of the other buildings.
+The second one uses the net consumption of the whole district, using the actions of the previous agents and 
+no-op's as estimations for the missing next buildings.
+
+#### Adaptive depth search
+
+### Alternative Role-based solution
+A set of rules defines the next move for each build independently (locally), based on the next hour prediction.
+The rules were defined to "flatten" the net consumption curve, and by this to minimize the utility:
+- If the next hour production is higher than the consumption, the battery is charged by the extra amount.
+- If the next hour consumption is higher than the production, the battery is discharged by the missing amount.
+
+On top of that, the rules treat the cases where the battary is fully charged or fully discharged.
+We also penalize the battery charge, in hours when the carbon intensity is below its median,
+as in such times the utility for using the grid power is relatively lower.
+
+The rules are defined in two cases, for a single building and for a group of buildings.
+The essence is the same, just that for the later case, the input is the net consumption of the group.
+
+Additional tuning was done to the rules, to minimize the utility for the training set, and the parameters for the
+single and group rules were found to be different.
+An important hyperparameter is thus the number of buildings which use the group rules.
 
 ## Files in the repository
 
-|File name       | Purpose                                                                                                         |
-|-------------------|-----------------------------------------------------------------------------------------------------------------|
-|`main.py`| main script for locally evaluating the model on the trainig data|
+### root
+
+|File name       | Purpose                                                                                  |
+|----------------|------------------------------------------------------------------------------------------|
+|`main.py`| main script for locally evaluating the model on the trainig data                         |
