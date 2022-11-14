@@ -62,3 +62,37 @@ An important hyperparameter is thus the number of buildings which use the group 
 |File name       | Purpose                                                                                  |
 |----------------|------------------------------------------------------------------------------------------|
 |`main.py`| main script for locally evaluating the model on the trainig data                         |
+
+
+## Analysis
+<figure>
+<img src="/"  width="900" 
+alt="."/>
+</figure>
+>.
+
+
+## References
+- **CityLearn**. [https://citylearn.org/](https://citylearn.org/)
+
+## Contact
+
+Gal Ness - [gness67@gmail.com](mailto:gness67@gmail.com)
+
+Roy Elkabetz - [elkabetzroy@gmail.com](mailto:elkabetzroy@gmail.com)
+ 
+## Prerequisites
+TODO: updae from requirements.txt
+
+|Library         | Version |
+|----------------------|----|
+|`numpy`| 1.19.5 |
+|`pandas`| 1.1.5 |
+|`matplotlib`| 3.3.4 |
+|`seaborn`| 0.11.1 |
+|`scikit-learn`| 0.24.1 |
+|`scipy`| 1.6.0 |
+|`joblib`| 1.0.1 |
+|`tqdm`| 4.59.0 |
+
+
