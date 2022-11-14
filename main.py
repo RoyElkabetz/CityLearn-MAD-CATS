@@ -26,7 +26,7 @@ class EvalConstants:
                         }
 
 
-class EvalConstantsLast:
+class EvalConstantsWeighed:
     # Environmental and simulation parameters
     episodes = 1
     compute_metric_interval = 100
@@ -42,17 +42,20 @@ class EvalConstantsLast:
                         }
 
 
-
 if __name__ == '__main__':
 
-    # verbos = True
-    # env, rl_coordinator, episode_metrics, evaluation_time = rb_evaluate(RBDecentralizedCoordinator,
-    #                                                                     BruteForceAgent,
-    #                                                                     EvalConstants,
-    #                                                                     verbose=verbos)
-
     verbos = True
-    env, rl_coordinator, episode_metrics, evaluation_time = rb_evaluate(RBWeighedDecentralizedCoordinator,
-                                                                        BruteForceWeighedAgent,
-                                                                        EvalConstantsLast,
-                                                                        verbose=verbos)
+    weighed_controller = False
+
+    # run different controllers for the CityLearn environment
+    if not weighed_controller:
+        env, rl_coordinator, episode_metrics, evaluation_time = rb_evaluate(RBDecentralizedCoordinator,
+                                                                            BruteForceAgent,
+                                                                            EvalConstants,
+                                                                            verbose=verbos)
+
+    else:
+        env, rl_coordinator, episode_metrics, evaluation_time = rb_evaluate(RBWeighedDecentralizedCoordinator,
+                                                                            BruteForceWeighedAgent,
+                                                                            EvalConstantsWeighed,
+                                                                            verbose=verbos)
