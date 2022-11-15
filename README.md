@@ -67,17 +67,14 @@ alt="."/>
 
  
 ## Prerequisites
-TODO: update requirements.txt or remove it
+TODO: update requirements.txt or remove it.
+Maybe it will also work without these, and it's enough to refer to the requirements.txt in the main repo.
 
 | Library      | Version |
 |--------------|---------|
 | `python`     | 3.9.13  |
-| `numpy`      | 1.21.6  |
-| `pytorch`    | 1.10.2  |
-| `pandas`     | 1.3.5   |
 | `matplotlib` | 3.5.2   |
 | `tqdm`       | 4.64.1  |
-| `pip`        | 22.2.2  |
 
 **plus** the CityLearn package itself, with its dependencies.
 Note to get the 1.3.6 version, from:
