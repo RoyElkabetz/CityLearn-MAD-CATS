@@ -24,6 +24,8 @@ We use a tree search algorithm, which is a modified Dijkstra's algorithm, to fin
 
 #### Battery model
 
+#### Hierarchical control scheme
+
 #### Local utility estimation
 The utility is a function of the net consumption, which is only evaluated at the end of the year (episode).
 However, the predictions and actions are made at each step, so we need to estimate the utility at each step.
@@ -55,14 +57,6 @@ Additional tuning was done to the rules, to minimize the utility for the trainin
 single and group rules were found to be different.
 An important hyperparameter is thus the number of buildings which use the group rules.
 
-## Files in the repository
-
-### root
-
-|File name       | Purpose                                                                                  |
-|----------------|------------------------------------------------------------------------------------------|
-|`main.py`| main script for locally evaluating the model on the trainig data                         |
-
 
 ## Analysis
 <figure>
@@ -71,28 +65,45 @@ alt="."/>
 </figure>
 >.
 
+ 
+## Prerequisites
+TODO: update requirements.txt or remove it
+
+| Library      | Version |
+|--------------|---------|
+| `python`     | 3.9.13  |
+| `numpy`      | 1.21.6  |
+| `pytorch`    | 1.10.2  |
+| `pandas`     | 1.3.5   |
+| `matplotlib` | 3.5.2   |
+| `tqdm`       | 4.64.1  |
+| `pip`        | 22.2.2  |
+
+**plus** the CityLearn package itself, with its dependencies.
+Note to get the 1.3.6 version, from:
+[https://github.com/intelligent-environments-lab/CityLearn](https://github.com/intelligent-environments-lab/CityLearn)
+
+
+## Files in the repository
+
+TODO: complete!
+
+| File/ folder name               | Purpose                                                          |
+|---------------------------------|------------------------------------------------------------------|
+| `main.py`                       | main script for locally evaluating the model on the trainig data |
+| `utils.py`                      | utility functions for the main script                            |
+| `evaluation_experiment.py`      | script for                                                       |
+| `agents`                        | folder for the agents                                            |
+| ├── `battery_model_rb_agent.py` |                                                                  |
+| └── `controller.py`             |                                                                  |
+
 
 ## References
 - **CityLearn**. [https://citylearn.org/](https://citylearn.org/)
+
 
 ## Contact
 
 Gal Ness - [gness67@gmail.com](mailto:gness67@gmail.com)
 
 Roy Elkabetz - [elkabetzroy@gmail.com](mailto:elkabetzroy@gmail.com)
- 
-## Prerequisites
-TODO: updae from requirements.txt
-
-|Library         | Version |
-|----------------------|----|
-|`numpy`| 1.19.5 |
-|`pandas`| 1.1.5 |
-|`matplotlib`| 3.3.4 |
-|`seaborn`| 0.11.1 |
-|`scikit-learn`| 0.24.1 |
-|`scipy`| 1.6.0 |
-|`joblib`| 1.0.1 |
-|`tqdm`| 4.59.0 |
-
-
