@@ -48,6 +48,7 @@ class RBDecentralizedCoordinator:
             "current_avg_rewards": {},
             "best_rewards": {},
         }
+        self.observation_history = []
 
         self.init_decision_makers(*args, **kwargs)
 
@@ -82,6 +83,9 @@ class RBDecentralizedCoordinator:
         """
         Compute the joint action.
         """
+        # save all observations for later plot and analysis
+        self.observation_history.append(observations)
+
         prev_district_net_cons = 0.0
         predicted_rest_district_next_net_consumption = 0.
         rest_district_actions_sum_kwh = 0.
@@ -223,6 +227,7 @@ class RBWeighedDecentralizedCoordinator:
         self.num_steps = 0
         self.num_episodes = 0
         self.world_predictor = None
+        self.observation_history = []
 
         self.scores_and_metrics = {
             "metric_eval_step": [],
@@ -285,6 +290,9 @@ class RBWeighedDecentralizedCoordinator:
         """
         Compute the joint action.
         """
+        # save all observations for later plot and analysis
+        self.observation_history.append(observations)
+        
         actions = []
         for agent_id in self.decision_makers.keys():
             action = self.decision_makers[agent_id].compute_action(observations[agent_id], agent_id)
