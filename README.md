@@ -1,4 +1,6 @@
 # CityLearn Multi-Agent Smart-Grid Smart-Tree Smart-Search
+
+> !!! Disclaimer: This repository is currently under development, so be patient with bugs. If you find any, please let us know (the contact info is below) !!!
  
 > This repository contains the code for our implementation of solution for the 2022 CityLearn challenge.
 
