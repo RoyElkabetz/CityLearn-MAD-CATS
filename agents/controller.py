@@ -191,7 +191,7 @@ class RBDecentralizedCoordinator:
         self.scores_and_metrics["price_cost"].append(metrics[0])
         self.scores_and_metrics["emission_cost"].append(metrics[1])
         self.scores_and_metrics["grid_cost"].append(metrics[2])
-        self.scores_and_metrics["metric_value"].append(np.sum(metrics))
+        self.scores_and_metrics["metric_value"].append(np.sum(metrics) / 3)
         self.scores_and_metrics["avg_metric_value"].append(np.mean(self.scores_and_metrics["metric_value"][-10:]))
 
     def print_scores_and_metrics(self, episodes_completed, num_steps):
@@ -292,7 +292,7 @@ class RBWeighedDecentralizedCoordinator:
         """
         # save all observations for later plot and analysis
         self.observation_history.append(observations)
-        
+
         actions = []
         for agent_id in self.decision_makers.keys():
             action = self.decision_makers[agent_id].compute_action(observations[agent_id], agent_id)

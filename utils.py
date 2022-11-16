@@ -15,84 +15,162 @@ from agents.brute_force_day_agent import BruteForceAgent, BruteForceWeighedAgent
 ####################################################################################################
 
 
-def plot_interval_results(env, sim_period=(0, 200), name=None, agent_ids=()):
-    #TODO if needed check that working
+def preprocess_obs_history(controller, scale=False):
+    obs_history = np.zeros((controller.num_buildings, len(controller.observation_history),
+                            len(controller.observation_history[0][0])), dtype=float)
+    for t, observation in enumerate(controller.observation_history):
+        for i in range(controller.num_buildings):
+            obs_history[i, t, :] = np.array(observation[i])
+    if scale:
+        for j in range(len(controller.observation_history[0][0])):
+            max_val = np.max(obs_history[:, :, j])
+            min_val = np.min(obs_history[:, :, j])
+            obs_history[:, :, j] = (obs_history[:, :, j] - min_val) / (max_val - min_val)
+
+    return obs_history # dimensions = (num_buildings, simulation_period, observation_len)
+
+
+def observation_map():
+    """
+    observation[0] = 'month',
+    observation[1] = 'day_type',
+    observation[2] = 'hour',
+    observation[3] = 'outdoor_dry_bulb_temperature',
+    observation[4] = 'outdoor_dry_bulb_temperature_predicted_6h',
+    observation[5] = 'outdoor_dry_bulb_temperature_predicted_12h',
+    observation[6] = 'outdoor_dry_bulb_temperature_predicted_24h',
+    observation[7] = 'outdoor_relative_humidity',
+    observation[8] = 'outdoor_relative_humidity_predicted_6h',
+    observation[9] = 'outdoor_relative_humidity_predicted_12h',
+    observation[10] = 'outdoor_relative_humidity_predicted_24h',
+    observation[11] = 'diffuse_solar_irradiance',
+    observation[12] = 'diffuse_solar_irradiance_predicted_6h',
+    observation[13] = 'diffuse_solar_irradiance_predicted_12h',
+    observation[14] = 'diffuse_solar_irradiance_predicted_24h',
+    observation[15] = 'direct_solar_irradiance',
+    observation[16] = 'direct_solar_irradiance_predicted_6h',
+    observation[17] = 'direct_solar_irradiance_predicted_12h',
+    observation[18] = 'direct_solar_irradiance_predicted_24h',
+    observation[19] = 'carbon_intensity',
+    observation[20] = 'non_shiftable_load',
+    observation[21] = 'solar_generation',
+    observation[22] = 'electrical_storage_soc',
+    observation[23] = 'net_electricity_consumption',
+    observation[24] = 'electricity_pricing',
+    observation[25] = 'electricity_pricing_predicted_6h',
+    observation[26] = 'electricity_pricing_predicted_12h',
+    observation[27] = 'electricity_pricing_predicted_24h'
+    """
+    obs_str_list = [
+        'month', 'day_type', 'hour', 'outdoor_dry_bulb_temperature',
+        'outdoor_dry_bulb_temperature_predicted_6h', 'outdoor_dry_bulb_temperature_predicted_12h',
+        'outdoor_dry_bulb_temperature_predicted_24h', 'outdoor_relative_humidity',
+        'outdoor_relative_humidity_predicted_6h', 'outdoor_relative_humidity_predicted_12h',
+        'outdoor_relative_humidity_predicted_24h', 'diffuse_solar_irradiance',
+        'diffuse_solar_irradiance_predicted_6h', 'diffuse_solar_irradiance_predicted_12h',
+        'diffuse_solar_irradiance_predicted_24h', 'direct_solar_irradiance',
+        'direct_solar_irradiance_predicted_6h', 'direct_solar_irradiance_predicted_12h',
+        'direct_solar_irradiance_predicted_24h', 'carbon_intensity', 'non_shiftable_load',
+        'solar_generation', 'electrical_storage_soc', 'net_electricity_consumption',
+        'electricity_pricing', 'electricity_pricing_predicted_6h', 'electricity_pricing_predicted_12h',
+        'electricity_pricing_predicted_24h'
+            ]
+
+    obs_map = {item: i for i, item in enumerate(obs_str_list)}
+    return obs_map
+
+
+def plot_interval_results(controller, sim_period=(0, 200), name=None, agent_ids=(),
+                          obs_params=None, scale=False, plot_no_op_consumption=False):
+
     import matplotlib
     import matplotlib.pyplot as plt
+    plt.rcParams.update({'font.size': 18})
     colors = list(matplotlib._color_data.TABLEAU_COLORS.keys())
-    if sim_period[1] > 8760:
-        sim_period[1] -= 8760
-    plt.figure(figsize=(16, 9))
+    obs_map = observation_map()
+    obs_data = preprocess_obs_history(controller, scale=scale)
+    sim_period = list(sim_period)
+
+    # verify plot length
+    time_step = obs_data.shape[1]
+    sim_period[1] = np.min([sim_period[1], 8760, time_step])
+    assert sim_period[1] > sim_period[0]
+
+    # compute the no op consumption per building
+    no_op_consumption = np.zeros((controller.num_buildings, time_step), dtype=float)
+    for i in range(controller.num_buildings):
+        no_op_consumption[i] = obs_data[i, :, obs_map["non_shiftable_load"]] - obs_data[i, :,
+                                                                               obs_map["solar_generation"]]
+
+    # plot
+    fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(16, 9))
     if len(agent_ids) == 0:
-        plt.plot(env.net_electricity_consumption_without_storage_and_pv[sim_period[0]:sim_period[1]])
-        plt.plot(-env.net_electricity_consumption_without_storage[sim_period[0]:sim_period[1]] +
-                 env.net_electricity_consumption_without_storage_and_pv[sim_period[0]:sim_period[1]])
-        plt.plot(env.net_electricity_consumption_without_storage[sim_period[0]:sim_period[1]], '--')
-        plt.plot(env.net_electricity_consumption[sim_period[0]:sim_period[1]], '--')
-        plt.xlabel('time (hours)')
-        plt.ylabel('kW')
-        plt.legend(['Electricity demand without storage and solar generation (kW)',
-                    'Electricity solar generation (kW)',
-                    'Electricity demand with PV generation and without storage(kW)',
-                    'Electricity demand with PV generation and using an AI agent for storage control (kW)'])
-        if name is not None:
-            name = 'figures/' + name + '_' + str(sim_period[0]) + '_' + str(sim_period[1]) + '.png'
-            plt.savefig(name)
+        # plot the district values
+        if isinstance(obs_params, list) or isinstance(obs_params, tuple):
+            for param in obs_params:
+                ax[0].plot(range(sim_period[0], sim_period[1]),
+                           np.sum(obs_data[:, sim_period[0]:sim_period[1], obs_map[param]], axis=0),
+                           label="district " + param)
+            if plot_no_op_consumption:
+                ax[0].plot(range(sim_period[0], sim_period[1]),
+                           np.sum(no_op_consumption[:, sim_period[0]:sim_period[1]], axis=0),
+                           label="district net consumption no battery")
+
+            if scale:
+                ax[0].set_ylabel('a.u.')
+            else:
+                ax[0].set_ylabel('value')
+        else:
+            ax[0].plot(range(sim_period[0], sim_period[1]),
+                       np.sum(obs_data[:, sim_period[0]:sim_period[1], obs_map[obs_params]], axis=0),
+                       label="district " + obs_params)
+            if scale:
+                ax[0].set_ylabel('a.u.')
+            else:
+                ax[0].set_ylabel(obs_params)
     else:
-        for i, agent_id in enumerate(agent_ids):
-            c = colors[i]
-            plt.plot(env.buildings[agent_id].net_electricity_consumption_without_storage_and_pv[sim_period[0]:sim_period[1]], '-x', c=c,
-                     markersize=14)
-            plt.plot(-env.buildings[agent_id].net_electricity_consumption_without_storage[sim_period[0]:sim_period[1]] +
-                     env.buildings[agent_id].net_electricity_consumption_without_storage_and_pv[sim_period[0]:sim_period[1]], '.-', c=c)
-            plt.plot(env.buildings[agent_id].net_electricity_consumption_without_storage[sim_period[0]:sim_period[1]], '-o', c=c)
-            plt.plot(env.buildings[agent_id].net_electricity_consumption[sim_period[0]:sim_period[1]], '--', c=c)
-            plt.xlabel('time (hours)')
-            plt.ylabel('kW')
-            if i == 0:
-                plt.legend(['Electricity demand without storage and solar generation (kW)',
-                            'Electricity solar generation (kW)',
-                            'Electricity demand with PV generation and without storage(kW)',
-                            'Electricity demand with PV generation and using an AI agent for storage control (kW)'])
-        if name is not None:
-            name = 'figures/' + name + '_' + str(sim_period[0]) + '_' + str(sim_period[1]) + '.png'
-            plt.savefig(name)
-    plt.show()
+        if isinstance(obs_params, list) or isinstance(obs_params, tuple):
+            for param in obs_params:
+                for i in agent_ids:
+                    ax[0].plot(range(sim_period[0], sim_period[1]),
+                               obs_data[i, sim_period[0]:sim_period[1], obs_map[param]],
+                               label="building-" + str(i) + " " + param)
+            if scale:
+                ax[0].set_ylabel('a.u.')
+            else:
+                ax[0].set_ylabel('value')
+        else:
+            for i in agent_ids:
+                ax[0].plot(range(sim_period[0], sim_period[1]),
+                           obs_data[i, sim_period[0]:sim_period[1], obs_map[obs_params]],
+                           label="building-" + str(i) + " " + obs_params)
+            if scale:
+                ax[0].set_ylabel('a.u.')
+            else:
+                ax[0].set_ylabel(obs_params)
+    ax[0].set_xlabel('time (hours)')
+    ax[0].legend()
+    ax[0].grid()
 
+    ax[1].plot(controller.scores_and_metrics["metric_eval_step"], controller.scores_and_metrics["price_cost"],
+               label="price cost")
+    ax[1].plot(controller.scores_and_metrics["metric_eval_step"], controller.scores_and_metrics["emission_cost"],
+               label="emission cost")
+    ax[1].plot(controller.scores_and_metrics["metric_eval_step"], controller.scores_and_metrics["grid_cost"],
+               label="grid cost")
+    ax[1].plot(controller.scores_and_metrics["metric_eval_step"], controller.scores_and_metrics["metric_value"],
+               label="metric value")
+    ax[1].plot(controller.scores_and_metrics["avg_metric_value"], controller.scores_and_metrics["avg_metric_value"],
+               label="avg metric value")
+    ax[1].set_xlabel("time [hour]")
+    ax[1].set_ylabel("score")
+    ax[1].legend()
+    ax[1].grid()
 
-def plot_scores(rl_coordinator, train_constants, name=None):
-    # TODO if needed check that working
-    # plot agents' scores
-    fig, axes = plt.subplots(3, 1, figsize=(16, 8), sharex='all')
-    for agent_id in rl_coordinator.decision_makers.keys():
-        axes[0].plot(np.array(range(1, rl_coordinator.num_episodes + 1)) * 8760,
-                     rl_coordinator.scores_and_metrics['avg_scores'][agent_id], '--o', label='agent-' + str(agent_id))
-    axes[0].set_ylabel('Avg score')
-    axes[0].grid()
-    axes[0].legend()
-
-    axes[1].plot(rl_coordinator.scores_and_metrics['metric_eval_step'],
-                 rl_coordinator.scores_and_metrics['avg_metric_value'], '-o', label='average metric value')
-    axes[1].hlines(2, rl_coordinator.scores_and_metrics['metric_eval_step'][0],
-                   rl_coordinator.scores_and_metrics['metric_eval_step'][-1], label='No battery baseline', color='red')
-    axes[1].set_ylabel('metric value')
-    axes[1].legend()
-    axes[1].grid()
-
-    # plot environment metrics
-    axes[2].plot(rl_coordinator.scores_and_metrics["metric_eval_step"],
-                 rl_coordinator.scores_and_metrics["price_cost"], label='price cost')
-    axes[2].plot(rl_coordinator.scores_and_metrics["metric_eval_step"],
-                 rl_coordinator.scores_and_metrics["emission_cost"], label='emission cost')
-    axes[2].set_xlabel('time (hours)')
-    axes[2].set_ylabel('price')
-    axes[2].legend()
-    axes[2].grid()
     if name is not None:
-        name = 'figures/' + name + train_constants.name + rl_coordinator.decision_makers[0].model_name + '.png'
+        name = 'figures/' + name + '_' + str(sim_period[0]) + '_' + str(sim_period[1]) + '.png'
         plt.savefig(name)
     plt.show()
-
 
 
 ####################################################################################################
