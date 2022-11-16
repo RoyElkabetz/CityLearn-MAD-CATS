@@ -82,6 +82,17 @@ def observation_map():
 
 def plot_interval_results(controller, sim_period=(0, 200), name=None, agent_ids=(),
                           obs_params=None, scale=False, plot_no_op_consumption=False):
+    """
+
+    :param controller: The controller class
+    :param sim_period:
+    :param name:
+    :param agent_ids:
+    :param obs_params:
+    :param scale:
+    :param plot_no_op_consumption:
+    :return:
+    """
 
     import matplotlib
     import matplotlib.pyplot as plt
