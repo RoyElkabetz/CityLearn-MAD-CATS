@@ -11,7 +11,7 @@ class EvalConstants:
     episodes = 1
     compute_metric_interval = 100
     schema_path = './data/citylearn_challenge_2022_phase_1/schema.json'
-    evaluation_days = episodes * 30
+    evaluation_days = episodes * 365
 
     # Controller and agents' parameters
     rule_based_params = {"search_depths": [0, 1, 2, 4],
@@ -60,4 +60,4 @@ if __name__ == '__main__':
                                                                             EvalConstantsWeighed,
                                                                             verbose=verbos)
 
-    plot_interval_results(rb_coordinator, sim_period=(400, 600), obs_params=["net_electricity_consumption", "non_shiftable_load"], agent_ids=(1, 4), scale=True)
+    plot_interval_results(rb_coordinator, sim_period=(400, 600), obs_params=["net_electricity_consumption"], agent_ids=[], scale=True, plot_no_op_consumption=True)

@@ -80,19 +80,24 @@ def observation_map():
     return obs_map
 
 
-def plot_interval_results(controller, sim_period=(0, 200), name=None, agent_ids=(),
+def plot_interval_results(controller, sim_period=(0, 200), name=None, agent_ids=None,
                           obs_params=None, scale=False, plot_no_op_consumption=False):
     """
 
     :param controller: The controller class
-    :param sim_period:
-    :param name:
-    :param agent_ids:
-    :param obs_params:
-    :param scale:
-    :param plot_no_op_consumption:
-    :return:
+    :param sim_period: The period (initial time, final time) to plot
+    :param name: The name of the plot for saving
+    :param agent_ids: The ids of buildings we would like to plot, if empty it plots the district's (sum of buildings)
+    :param obs_params: The parameters to plot, i.e. 'net_electricity_consumption', can be a single string or a
+            tuple of strings
+    :param scale: If True, normalize the y-axis of all plots
+    :param plot_no_op_consumption: If True, plot the no_op_consumption
+    :return: None
     """
+    if agent_ids is None:
+        agent_ids = []
+    if plot_no_op_consumption:
+        scale = False
 
     import matplotlib
     import matplotlib.pyplot as plt
@@ -124,8 +129,8 @@ def plot_interval_results(controller, sim_period=(0, 200), name=None, agent_ids=
                            label="district " + param)
             if plot_no_op_consumption:
                 ax[0].plot(range(sim_period[0], sim_period[1]),
-                           np.sum(no_op_consumption[:, sim_period[0]:sim_period[1]], axis=0),
-                           label="district net consumption no battery")
+                           np.sum(no_op_consumption[:, sim_period[0]:sim_period[1]], axis=0), "--",
+                           label="district net_electricity_consumption (no battery)")
 
             if scale:
                 ax[0].set_ylabel('a.u.')
@@ -146,6 +151,11 @@ def plot_interval_results(controller, sim_period=(0, 200), name=None, agent_ids=
                     ax[0].plot(range(sim_period[0], sim_period[1]),
                                obs_data[i, sim_period[0]:sim_period[1], obs_map[param]],
                                label="building-" + str(i) + " " + param)
+            if plot_no_op_consumption:
+                for i in agent_ids:
+                    ax[0].plot(range(sim_period[0], sim_period[1]),
+                               no_op_consumption[i, sim_period[0]:sim_period[1]], "--",
+                               label="building-" + str(i) + " net_electricity_consumption (no battery)")
             if scale:
                 ax[0].set_ylabel('a.u.')
             else:
@@ -171,7 +181,7 @@ def plot_interval_results(controller, sim_period=(0, 200), name=None, agent_ids=
                label="grid cost")
     ax[1].plot(controller.scores_and_metrics["metric_eval_step"], controller.scores_and_metrics["metric_value"],
                label="metric value")
-    ax[1].plot(controller.scores_and_metrics["avg_metric_value"], controller.scores_and_metrics["avg_metric_value"],
+    ax[1].plot(controller.scores_and_metrics["metric_eval_step"], controller.scores_and_metrics["avg_metric_value"],
                label="avg metric value")
     ax[1].set_xlabel("time [hour]")
     ax[1].set_ylabel("score")
