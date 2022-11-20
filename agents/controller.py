@@ -229,6 +229,8 @@ class RBWeighedDecentralizedCoordinator:
         self.world_predictor = None
         self.observation_history = []
 
+        print("The RBWeighedDecentralizedCoordinator class is not working properly, should be debug !!!")
+
         self.scores_and_metrics = {
             "metric_eval_step": [],
             "price_cost": [],
