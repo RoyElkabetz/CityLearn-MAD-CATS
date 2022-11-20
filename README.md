@@ -1,8 +1,11 @@
-# CityLearn Multi-Agent Smart-Grid Smart-Tree Smart-Search
+# CityLearn Multi-Agent Smart-Grid Smart-Tree Smart-Search 
 
-> !!! Disclaimer: This repository is currently under development, so be patient with bugs. If you find any, please let us know (the contact info is below) !!!
+> !!! Disclaimer: This repository is currently under development, so be patient with bugs.
+  If you find any, please let us know (the contact info is below) !!!
  
-> This repository contains the code for our implementation of solution for the [2022 CityLearn challengeCityLearn](https://github.com/intelligent-environments-lab/CityLearn).
+> This repository contains the code for our implementation of a solution for the
+ [2022 CityLearn challenge](https://github.com/intelligent-environments-lab/CityLearn).
+
 
 ## Introduction
 
@@ -21,6 +24,9 @@ The crux of the problem is that:
 - The natural periodicity of the net consumption is 24 hours, which even for planning using tree-search 
   algorithms with moderate branching factors is a lot of states to consider (e.g., `5**24=6e17`).
 
+
+## Solution
+
 The `i`'th building's net consumption at time `t` is made out of three key elements:
 
 $$E^{(i,t)} = E_{Load}^{(i,t)} + E_{Solar}^{(i,t)} + E_{Storage}^{(i,t)}$$
@@ -34,7 +40,6 @@ actions only affect the agent's environment, and the time-evolution is dictated 
 The actions affect the net electricity consumption via the equation above, and accordingly affect the utility function.
 
 
-## Solution
 
 We implement and use:
 
@@ -51,8 +56,19 @@ We implement and use:
 - Residual corrections between the sum of local trajectories and the global optimal behavior are taken care of by the last agent. 
   This is done by a simple heuristic, where it optimizes a global utility with the sum of net consumptions (modified with the planned actions). 
 
+##### Etymology
+Let's break down the name of the repository: 
+- `CityLearn` is the name of the challenge, referring to the fact that there is a collective (city) learning goal.
+- `Multi-Agent` is the type of problem, referring to the same thing basically.
+- `Smart-Grid` is the domain of the problem, where the buildings have energy consumption and production, and a battery.
+   So they can be smart, and use the grid in some optimal fashion.
+- `Smart-Tree` refers to the uniform-cost tree-search algorithm we use to solve the problem, with its extra spices, e.g., 
+  depth-selective search and non-uniform action space discretization.
+- `Smart-Search` refers to the fact that we employ a battery model, and use mixed decision-makers for the decentralized controllers.
+
 
 ### Formulating the problem as an MDP
+
 
 
 ### Battery model
@@ -60,7 +76,7 @@ We implement and use:
 We reverse-engineered the battery model from the `CityLearn` environment, and used it as the MDP's (Markov decision process)
 transition function for the planning.
 
-The ket parameters of the model are the battery's capacity, the battery's charging efficiency, and the battery's discharging efficiency.
+The key parameters of the model are the battery's capacity, the battery's charging efficiency, and the battery's discharging efficiency.
 SoC
 capacity
 nominal power
@@ -72,11 +88,13 @@ nominal power
 
 
 ### Local utility estimation
-The utility is a function of the net consumption, which is only evaluated at the end of the year (episode).
+
+The utility is a function of the net consumption ($E$), that is only evaluated at the end of the year (episode).
 However, the predictions and actions are made at each step, so we need to estimate the utility at each step.
 For this purpose, we use an instantaneous utility estimation, which is an approximation of the utility function.
 
-TODO: Explain each term in the utility estimation.
+To motivate the construction of the instantaneous utility function, we first observe the utility function as a function of the net consumption:
+
 
 There is a couple of estimators.
 The first one uses for a single building, independent of the other buildings.
@@ -180,7 +198,7 @@ alt="."/>
 Utilities for these examples:
 | Decision-maker | Utility (total) | Price cost | Emission cost | Grid cost |
 |----------------|-----------------|------------|---------------|-----------|
-| No-op          | 0.000           | 0.000      | 0.000         | 0.000     |
+| No-op          | 1.000           | 1.000      | 1.000         | 1.000     |
 | Local RB       | 0.000           | 0.000      | 0.000         | 0.000     |
 | Local RB + global RB | 0.000           | 0.000      | 0.000         | 0.000     |
 | Local planner  | 0.000           | 0.000      | 0.000         | 0.000     |
@@ -194,6 +212,9 @@ Utilities for these examples:
 
 #### utility weighting
 `utility_weighting = {[1, 1, 1, 1], [1, 0, 0,0], [0, 1, 0, 0], [0, 0, 1, 1]}`
+
+#### agents order shuffling
+`random_order = {True, False}`
 
 ### Rule-based
 
