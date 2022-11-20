@@ -67,7 +67,15 @@ Let's break down the name of the repository:
 - `Smart-Search` refers to the fact that we employ a battery model, and use mixed decision-makers for the decentralized controllers.
 
 
-### Formulating the problem as an MDP
+### Formulating the Battery problem as an MDP
+In order to use search algorithms such as Uniform-Cost-Search we need to have a model of the world as a 
+Markov Decision Process (MDP), that we can use for offline planing. The given CityLearn environment, as we already
+mentioned, can be factored into two parts:
+- The Grid model, which consists of the weather parameters (e.g. temperature, solar irradiance, etc), 
+  the grid parameters (e.g. electricity price, carbon intensity, etc) and the district's consumption measured data
+  (e.g. non-shiftable load and solar generation).
+- The Battery model, which consists of the battery's State of Charge (SoC), Capacity, Nominal power and so on.
+
 
 
 
