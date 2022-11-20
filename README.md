@@ -2,7 +2,7 @@
 
 > !!! Disclaimer: This repository is currently under development, so be patient with bugs. If you find any, please let us know (the contact info is below) !!!
  
-> This repository contains the code for our implementation of solution for the 2022 CityLearn challenge.
+> This repository contains the code for our implementation of solution for the [2022 CityLearn challengeCityLearn](https://github.com/intelligent-environments-lab/CityLearn).
 
 ## Introduction
 
@@ -21,26 +21,35 @@ The crux of the problem is that:
 - The natural periodicity of the net consumption is 24 hours, which even for planning using tree-search 
   algorithms with moderate branching factors is a lot of states to consider (e.g., `5**24=6e17`).
 
-Each building's net consumption is made out of three key elements:
-$$P^{(i,t)}_{net} = P_{C}^{(i,t)} + P_{PV}^{(i,t)} + P_{Storage}^{(i,t)}$$
+The `i`'th building's net consumption at time `t` is made out of three key elements:
 
-$$1+1=2$$
+$$E^{(i,t)} = E_{Load}^{(i,t)} + E_{Solar}^{(i,t)} + E_{Storage}^{(i,t)}$$
+
+The non-shiftable load $E_{Load}^{(i,t)}$ and the solar generation $E_{Solar}^{(i,t)} terms are given from the environment.
+The storage $E_{Storage}^{(i,t)}$ is the action of the agent, which is the amount of energy to be charged/discharged from the battery.
+
+We can therefore factorize the problem into two sub-environments, one for the agent and one for the "world", where the
+actions only affect the agent's environment, and the time-evolution is dictated by the world's environment.
+
+The actions affect the net electricity consumption via the equation above, and accordingly affect the utility function.
+
 
 ## Solution
-
-
 
 We implement and use:
 
 - Uniform-Cost Search algorithm (a type of tree-search), which is a modified 
 [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm), to find the optimal action for each building.
 - Various predictors to predict the net consumption of each building for the next time frame (1 or 24 hrs)
-- Battery model to translate action to .
+- Battery model to translate action to change in battery's state of charge (SoC).
 - Local (instantaneous) estimation of the utility function to guide the search.
 - Depth-selective search, where the search is performed only on specified levels of the tree, and the rest is 
   bridged by steps among which the action is uniformly divided.
-
-
+- Some utility terms are global. Namely, they are effected by the actions of all the buildings in the district.
+  We use decentralized controllers, where each building is taking actions to optimize local reward function.
+  Therefore, a local estimation of the global utility is established and used to guide the search for each agent.
+- Residual corrections between the sum of local trajectories and the global optimal behavior are taken care of by the last agent. 
+  This is done by a simple heuristic, where it optimizes a global utility with the sum of net consumptions (modified with the planned actions). 
 
 
 ### Formulating the problem as an MDP
@@ -60,17 +69,6 @@ nominal power
 
 
 
-### Hierarchical control scheme
-
-We use a decentralised control setting for all agents, where each building has its own set of decision-makers.
-The last agent is knowledgeable about the rest of the agents (net consumptions modified by the planned actions),
-and can use this information to make better decisions.
-
-<figure>
-<img src="/"  width="900" 
-alt="."/>
-</figure>
-> 
 
 
 ### Local utility estimation
@@ -85,7 +83,23 @@ The first one uses for a single building, independent of the other buildings.
 The second one uses the net consumption of the whole district, using the actions of the previous agents and 
 no-op's as estimations for the missing next buildings.
 
-### Adaptive depth search
+
+
+### Hierarchical control scheme
+
+We use a decentralised control setting for all agents, where each building has its own set of decision-makers.
+The last agent is knowledgeable about the rest of the agents (net consumptions modified by the planned actions),
+and can use this information to make better decisions.
+
+<figure>
+<img src="/"  width="900" 
+alt="."/>
+</figure>
+> 
+
+### Depth-selective search
+
+
 
 ## Alternative Rule-based solution
 A set of rules defines the next move for each building independently (locally), based on the next hour prediction.
@@ -105,6 +119,12 @@ Additional tuning was done to the rules, to minimize the utility for the trainin
 single and group rules were found to be different.
 An important hyperparameter is thus the number of buildings which use the group rules.
 
+<figure>
+<img src="/"  width="900" 
+alt="."/>
+</figure>
+
+> Rule-based solution for a single building
 
 ## Tunable parameters
 
@@ -135,14 +155,63 @@ Planner parameters:
 
 ## Results analysis
 
-### Planner
+### Decision-makers comparison
+
+We compare the performance of the different decision-makers, and first observe how they affect the net-consumption
+trajectory of an individual building and the whole district.
+
 <figure>
 <img src="/"  width="900" 
 alt="."/>
 </figure>
-> 
 
+> A comparison of the decision-makers. The net consumption of a **single building** is shown,
+  and the actions are taken by the different decision-makers.
+
+<figure>
+<img src="/"  width="900" 
+alt="."/>
+</figure>
+
+> A comparison of the decision-makers. The net consumption of the **whole district** (sum of all building's) is shown,
+  and the actions are taken by the different decision-makers: No-op, local Rule-Based,local RB with global RB,
+  planners with (or w/o) last global RB. 
  
+Utilities for these examples:
+| Decision-maker | Utility (total) | Price cost | Emission cost | Grid cost |
+|----------------|-----------------|------------|---------------|-----------|
+| No-op          | 0.000           | 0.000      | 0.000         | 0.000     |
+| Local RB       | 0.000           | 0.000      | 0.000         | 0.000     |
+| Local RB + global RB | 0.000           | 0.000      | 0.000         | 0.000     |
+| Local planner  | 0.000           | 0.000      | 0.000         | 0.000     |
+| Local planner + global RB | 0.000           | 0.000      | 0.000         | 0.000     |
+
+
+### Planner
+
+#### Depth-selective search
+`search_depths = {[0,1], [0,1,2,3,4]  [0,1,2,3,8]}`
+
+#### utility weighting
+`utility_weighting = {[1, 1, 1, 1], [1, 0, 0,0], [0, 1, 0, 0], [0, 0, 1, 1]}`
+
+### Rule-based
+
+w/o agents ramdomization.
+
+| last_agent_type| last buliding (4) net consumption | whole district net consumption |
+|--------------|-----------------------------------|-------------------------------|
+| `RB-local`  | graph  [makes sense]              |                    graph |
+| `RB-global` | graph                             |          graph[makes sense] |
+ 
+
+### Summary
+
+Synergizing imperfect planners with last RB agent is the best.
+
+
+
+
 ## Prerequisites
 TODO: update requirements.txt or remove it.
 Maybe it will also work without these, and it's enough to refer to the requirements.txt in the main repo.
@@ -173,7 +242,7 @@ TODO: complete!
 
 
 ## References
-- **CityLearn**. [https://citylearn.org/](https://citylearn.org/)
+- **CityLearn**. [https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge](https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge)
 
 
 ## Contact
