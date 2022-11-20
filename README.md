@@ -24,6 +24,8 @@ The crux of the problem is that:
 Each building's net consumption is made out of three key elements:
 $$P^{(i,t)}_{net} = P_{C}^{(i,t)} + P_{PV}^{(i,t)} + P_{Storage}^{(i,t)}$$
 
+$$1+1=2$$
+
 ## Solution
 
 
