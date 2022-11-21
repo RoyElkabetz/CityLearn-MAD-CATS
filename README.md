@@ -319,24 +319,44 @@ alt="."/>
 
 > A comparison of the decision-makers. The net consumption of a **single building** is shown,
   and the actions are taken by the different decision-makers.
-
+ 
+ 
 <figure>
-<img src="/"  width="900" 
+<img src="figures/experiments/dm_net_consumption_comparison_all.png"  width="900" 
 alt="."/>
 </figure>
 
-> A comparison of the decision-makers. The net consumption of the **whole district** (sum of all building's) is shown,
-  and the actions are taken by the different decision-makers: No-op, local Rule-Based,local RB with global RB,
+> A comparison of the variation in decision-makers behaviour across different buildings. The net consumption of a **single building** is shown,
+  and the actions are taken by the different decision-makers for each building.
+
+<figure>
+<img src="figures/experiments/controllers_net_consumption_comparison.png"  width="900" 
+alt="."/>
+</figure>
+
+> A comparison of the control configurations. The net consumption of the **whole district** (sum of all building's) is shown,
+  and the actions are taken by the different decision-makers in each control configuration: No-op, local Rule-Based,local RB with global RB,
+  planners with (or w/o) last global RB.
+
+
+<figure>
+<img src="figures/experiments/controllers_utility_comparison.png"  width="900" 
+alt="."/>
+</figure>
+
+> A comparison of the control configurations utilities: No-op, local Rule-Based,local RB with global RB,
   planners with (or w/o) last global RB. 
+
  
 Utilities for these examples:
 | Decision-maker | Utility (total) | Price cost | Emission cost | Grid cost |
 |----------------|-----------------|------------|---------------|-----------|
 | No-op          | 1.000           | 1.000      | 1.000         | 1.000     |
-| Local RB       | 0.000           | 0.000      | 0.000         | 0.000     |
-| Local RB + global RB | 0.000           | 0.000      | 0.000         | 0.000     |
-| Local planner  | 0.000           | 0.000      | 0.000         | 0.000     |
-| Local planner + global RB | 0.000           | 0.000      | 0.000         | 0.000     |
+| Local RB       | 0.7845           | 0.721       | 0.7764         | 0.8561     |
+| Local RB + global RB | 0.7822           | 0.6858 |  0.8174 | 0.8436   |
+| Local RB + global RB + random | 0.7939           | 0.685 | 0.8248  | 0.8718  |
+| Local planner  | 0.855           | 0.7708 | 0.8958 | 0.8985     |
+| Local planner + global RB | 0.846           | 0.7405 | 0.9391 | 0.8584    |
 
 
 ### Planner
