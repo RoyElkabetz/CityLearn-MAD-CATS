@@ -190,8 +190,8 @@ Once again, this approximation only applies to the local utility estimation.
 
 #### Load factor:
 
-$$ L=1-\frac{1}{8760}\sum_{m=0}^{11}\frac{\sum_{t=0}^{729}\sum_{i=0}^{4}E^{\left(i,730m+t\right)}}{\max\left\{
-\sum_{i=0}^{4}E^{\left(i,730m+t\right)}\right\} _{t=0}^{729}}\text{ }. $$
+$$ L=1-\frac{1}{8760}\sum_{m=0}^{11}\frac{\sum_{t=0}^{729}\sum_{i=0}^{4}E^{\left(i,730m+t\right)}}{\max
+\left[\sum_{i=0}^{4}E^{\left(i,730m+t\right)}\right]_{t=0}^{729}}\text{ }. $$
 
 This is somewhat cumbersome term, but let's break it down intuitively.
 In the numerator, we have a sum of the net consumption over all (730) time-steps of the month $m$, and in the denominator,
