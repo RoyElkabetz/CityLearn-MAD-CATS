@@ -208,10 +208,10 @@ trajectory over each month as a proxy for penalizing high (candidate peak) consu
 
 $$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\text{ },\text{ },\quad\text{ with }\quad
 \tilde{L}^{\left(i,t,m\right)}=\beta_{L}\left[\exp\left(\frac{\left\lfloor E^{\left(i,730m+t\right)}-\mu_{1/2}^{m}
-\right\rfloor _{0}}{M^{m}-\mu_{1/2}^{m}}\right)-1\right]\text{ }, $$
+\right\rfloor_0}{M^m-\mu_{1/2}^m}\right)-1\right]\text{ }, $$
 
-where $\mu_{1/2}^{m}$ is the median of the no-op trajectory over the month $m$, and $M^{m}$ is its maximum, and
-$\beta_{L}\approx 84$ is a scaling factor set according to the training set's statistics.
+where $\mu_{1/2}^m$ is the median of the no-op trajectory over the month $m$, and $M^m$ is its maximum, and
+$\beta_L\approx 84$ is a scaling factor set according to the training set's statistics.
 The large difference between the scaling factors stems from the different approach and also from the fact that in the
 utility the different terms are arbitrarily summed over or taken the average of. In part this scaling factor does not
 matter per se, as each utility term is normalized by the no-op utility, but it is set to match the original 
