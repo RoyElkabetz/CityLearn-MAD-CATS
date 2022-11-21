@@ -140,66 +140,83 @@ and $L$ is the load factor. All explained below.
 Each term is normalized by the baseline cost (with subscript $0$ ), which is the cost of the district without battery usage,
 that is equivalent to consecutive no-op actions.
 
-- Electricity cost:
+#### Electricity cost:
 
 $$ P=\sum_{t=0}^{8759}\alpha_P (t)\left\lfloor\sum_{t=0}^4 E^{(i,t)}\right\rfloor_0 $$
 
-    Here $\alpha_P (t)$ is the electricity price at time $t$ (given from the environment), and $E^{(i,t)}$ is the net
-    consumption of the $i$'th building at time $t$. The $\left\lfloor\cdot\right\rfloor _{0}$ annotates the positive part
-    of the sum over all buildings (4 in the training set, but not necessarily 4 in the other sets).
-  
-  Note that this part of the utility can be directly decomposed into the sum of instantaneous utilities at each
-  time-step (and be rewritten as a dot-product), but a global knowledge of the district's net consumption is required
-  to execute the ReLU.
+Here $\alpha_P (t)$ is the electricity price at time $t$ (given from the environment), and $E^{(i,t)}$ is the net
+consumption of the $i$'th building at time $t$. The $\left\lfloor\cdot\right\rfloor _{0}$ annotates the positive part
+of the sum over all buildings (4 in the training set, but not necessarily 4 in the other sets).
+
+Note that this part of the utility can be directly decomposed into the sum of instantaneous utilities at each
+time-step (and be rewritten as a dot-product), but a global knowledge of the district's net consumption is required
+to execute the ReLU.
+
+To approximate this global trend, we use a leaky ReLU, where the slope of the negative part is a parameter, which
+we set to $\beta_P\approx 0.16$ according to the training set's statistics (without battery usage).
+
+$$ P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\quad\text{ with }\quad\tilde{P}^{\left(i,t\right)}
+=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor_{0}+\beta_{P}\left\lceil E^{(i,t)}\right\rceil _{0}\right)\;, $$
+
+where $\left\lceil\cdot\right\rceil_{0}$ denotes the negative part.
+
+This approximation only applies to the local utility estimation.
+
+
+#### Carbon emission:
+
+$$ C=\sum_{t=0}^{8759}\sum_{t=0}^{4}C^{\left(i,t\right)}\quad\text{ with }\quad C^{\left(i,t\right)}
+=\alpha_{C}(t)\left\lfloor E^{(i,t)}\right\rfloor _{0}\;. $$
+
+Here $\alpha_{C}(t)$ is the given carbon intensity at time $t$, and we readily decomposed this term into the sum of
+local and instantaneous utilities.
+
+
+#### Ramping:
+
+$$ R=\sum_{t=0}^{8759}\left|\sum_{i=0}^{4}\left[E^{(i,t)}-E^{(i,t-1)}\right]\right| $$
+
+Similarly to the price term, this part of the utility can be directly decomposed into the sum of instantaneous
+ utilities, but a global knowledge of the district's net consumption is required to execute the absolute value.
     
-  - To approximate this global trend, we use a leaky ReLU, where the slope of the negative part is a parameter, which
-    we set to $\beta_P\approx 0.16$ according to the training set's statistics (without battery usage).
-    $$ P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\quad\text{ with }\quad\tilde{P}^{\left(i,t\right)}
-    =\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor_{0}+\beta_{P}\left\lceil E^{(i,t)}\right\rceil _{0}\right)\;, $$
-    where $\left\lceil\cdot\right\rceil_{0}$ denotes the negative part.
-    This approximation only applies to the local utility estimation.
+To approximate this, we use a factored ReLU, with a scaling factor $\beta_R\approx 0.75$ set according to the
+training set's statistics.
 
-- Carbon emission:
-  $$ C=\sum_{t=0}^{8759}\sum_{t=0}^{4}C^{\left(i,t\right)}\quad\text{ with }\quad C^{\left(i,t\right)}
-  =\alpha_{C}(t)\left\lfloor E^{(i,t)}\right\rfloor _{0}\;. $$
-  Here $\alpha_{C}(t)$ is the given carbon intensity at time $t$, and we readily decomposed this term into the sum of
-  local and instantaneous utilities.
+$$P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\quad\text{ with }\quad P^{\left(i,t\right)}
+=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor _{0}+\beta\left\lceil E^{(i,t)}\right\rceil _{0}\right)\;.$$
 
-- Ramping factor:
-  $$ R=\sum_{t=0}^{8759}\left|\sum_{i=0}^{4}\left[E^{(i,t)}-E^{(i,t-1)}\right]\right| $$
-  Similarly to the price term, this part of the utility can be directly decomposed into the sum of instantaneous
-  utilities, but a global knowledge of the district's net consumption is required to execute the absolute value.
-    
-  - To approximate this, we use a factored ReLU, with a scaling factor $\beta_R\approx 0.75$ set according to the
-    training set's statistics.
-    $$P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\quad\text{ with }\quad P^{\left(i,t\right)}
-    =\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor _{0}+\beta\left\lceil E^{(i,t)}\right\rceil _{0}\right)\;.$$
-    Once again, this approximation only applies to the local utility estimation.
+Once again, this approximation only applies to the local utility estimation.
 
-- Load factor:
-  $$ L=1-\frac{1}{8760}\sum_{m=0}^{11}\frac{\sum_{t=0}^{729}\sum_{i=0}^{4}E^{\left(i,730m+t\right)}}{\max\left\{
-  \sum_{i=0}^{4}E^{\left(i,730m+t\right)}\right\} _{t=0}^{729}}\;. $$
-  This is somewhat cumbersome term, but let's break it down intuitively.
-  In the numerator, we have a sum of the net consumption over all (730) time-steps of the month $m$, and in the denominator,
-  we have the maximum (peak) value.
-  This means that this part of the utility penalizes the peak consumption, and rewards the average consumption.
-  To see this, we observe that wherever action we take, the sum of consumption over a whole month is more or less 
-  anyway given by the load-to-generation difference, and the peak consumption is the only thing that can be changed
-  by the action, due to the relatively small timescale at which the battery can get drained or charged.
-  So, higher peak consumption means larger denominators, so lower arguments of the summation, but the leading minus
-  sign in the utility function means that this is penalized to be higher utility.
 
-  - To approximate this term, we take a heuristic approach, where we use the median and max consumption of the no-op
-    trajectory over each month as a proxy for penalizing high (candidate peak) consumptions.
-    $$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\;,\quad\text{ with }\quad
-    \tilde{L}^{\left(i,t,m\right)}=\beta_{L}\left[\exp\left(\frac{\left\lfloor E^{\left(i,730m+t\right)}-\mu_{1/2}^{m}
-    \right\rfloor _{0}}{M^{m}-\mu_{1/2}^{m}}\right)-1\right]\;, $$
-    where $\mu_{1/2}^{m}$ is the median of the no-op trajectory over the month $m$, and $M^{m}$ is its maximum, and
-    $\beta_{L}\approx 84$ is a scaling factor set according to the training set's statistics.
-    The large difference between the scaling factors stems from the different approach and also from the fact that in the
-    utility the different terms are arbitrarily summed over or taken the average of. In part this scaling factor does not
-    matter per se, as each utility term is normalized by the no-op utility, but it is set to match the original 
-    utility scale. It is also varied for the global utility estimation.
+#### Load factor:
+
+$$ L=1-\frac{1}{8760}\sum_{m=0}^{11}\frac{\sum_{t=0}^{729}\sum_{i=0}^{4}E^{\left(i,730m+t\right)}}{\max\left\{
+\sum_{i=0}^{4}E^{\left(i,730m+t\right)}\right\} _{t=0}^{729}}\;. $$
+
+This is somewhat cumbersome term, but let's break it down intuitively.
+In the numerator, we have a sum of the net consumption over all (730) time-steps of the month $m$, and in the denominator,
+we have the maximum (peak) value.
+This means that this part of the utility penalizes the peak consumption, and rewards the average consumption.
+To see this, we observe that wherever action we take, the sum of consumption over a whole month is more or less 
+anyway given by the load-to-generation difference, and the peak consumption is the only thing that can be changed
+by the action, due to the relatively small timescale at which the battery can get drained or charged.
+So, higher peak consumption means larger denominators, so lower arguments of the summation, but the leading minus
+sign in the utility function means that this is penalized to be higher utility.
+
+To approximate this term, we take a heuristic approach, where we use the median and max consumption of the no-op
+trajectory over each month as a proxy for penalizing high (candidate peak) consumptions.
+
+$$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\;,\quad\text{ with }\quad
+\tilde{L}^{\left(i,t,m\right)}=\beta_{L}\left[\exp\left(\frac{\left\lfloor E^{\left(i,730m+t\right)}-\mu_{1/2}^{m}
+\right\rfloor _{0}}{M^{m}-\mu_{1/2}^{m}}\right)-1\right]\;, $$
+
+where $\mu_{1/2}^{m}$ is the median of the no-op trajectory over the month $m$, and $M^{m}$ is its maximum, and
+$\beta_{L}\approx 84$ is a scaling factor set according to the training set's statistics.
+The large difference between the scaling factors stems from the different approach and also from the fact that in the
+utility the different terms are arbitrarily summed over or taken the average of. In part this scaling factor does not
+matter per se, as each utility term is normalized by the no-op utility, but it is set to match the original 
+utility scale. It is also varied for the global utility estimation.
+
 
 
 For the hierarchical control we evaluate a couple of estimators.
