@@ -90,11 +90,14 @@ Therefore, we formulate the model of the battery as an MDP and together with a p
   battery actions from each state.
   
 The battery MDP $\langle S, A, T, R, \gamma\rangle$ is the following:
-- $s_t = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$ for every $s_t\in S$.
-- $A$ is defined as some discritization of $[-1, 1]$.
+- $S$ is composed of the battery state such that $s_t  = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$.
+- $A$ is defined as some discritization of $[-1, 1]$, i.e. $[-1.0, -0.5, -0.1, 0, 0.1, 0.5, 1.0]$.
 - $T$ is given by the physical model of the battery, taken from the CityLearn environment.
-- $R$ is a local reward function which was handcrafted in a way that would be globaly consistent with the CityLearn 
+- $R$ is a local reward function (cost function in our case) which was handcrafted in a way that would be globally consistent with the CityLearn's 
   utility (explained in detail later). 
+  
+The goal here is to find a trajectory of battery's charge/discharge actions with minimal cost given a set of world 
+predictions and then execute the first or a few actions from that trajectory, and then re-plan.   
 
 
 #### Timescales in the problem
