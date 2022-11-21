@@ -1,4 +1,4 @@
-# CityLearn Multi-Agent Smart-Grid Smart-Tree Smart-Search 
+# CityLearn MAD CATS (Multi-Agent Distributed Control with Adequate Tree-Search)
 
 > !!! Disclaimer: This repository is currently under development, so be patient with bugs.
   If you find any, please let us know (the contact info is below) !!!
@@ -6,6 +6,11 @@
 > This repository contains the code for our implementation of a solution for the
  [2022 CityLearn challenge](https://github.com/intelligent-environments-lab/CityLearn).
 
+
+<figure>
+<img src="/"  width="900" 
+alt="MAT CATS logo"/>
+</figure>
 
 ## Introduction
 
@@ -16,18 +21,18 @@ which is a specified measure of the net energy consumption of the buildings in t
 parts of which are global to the whole district and parts of which are local to each building.
 The action-space is the amount of energy to be stored in the battery, and the observation space is the
 energy consumption and production of the building, as well as additional global parameters such as the 
-electricity price, the CO2 intensity per unit of electricity, the weather parameters, etc.
+electricity price, the CO$_2$ intensity per unit of electricity, the weather parameters, etc.
 
 The crux of the problem is that:
 - The actions affect the next step, so the net consumption of each building has to be predicted.
 - The utility involves global parts, so the optimal action for one building depends on the actions of the other buildings.
 - The natural periodicity of the net consumption is 24 hours, which even for planning using tree-search 
-  algorithms with moderate branching factors is a lot of states to consider (e.g., `5**24=6e17`).
+  algorithms with moderate branching factors is a lot of states to consider (e.g., `$5^{24}=6\cdot 10^{17}$`).
 
 
 ## Solution
 
-The `i`'th building's net consumption at time `t` is made out of three key elements:
+The $i$'th building's net consumption at time $t$ is made out of three key elements:
 
 $$E^{(i,t)} = E_{Load}^{(i,t)} + E_{Solar}^{(i,t)} + E_{Storage}^{(i,t)}$$
 
@@ -57,27 +62,47 @@ We implement and use:
   This is done by a simple heuristic, where it optimizes a global utility with the sum of net consumptions (modified with the planned actions). 
 
 ##### Etymology
-Let's break down the name of the repository: 
+Let's break down the name of the repository:
+MAD CATS (Multi-Agent Distributed Control with Adequate Tree-Search)
 - `CityLearn` is the name of the challenge, referring to the fact that there is a collective (city) learning goal.
 - `Multi-Agent` is the type of problem, referring to the same thing basically.
-- `Smart-Grid` is the domain of the problem, where the buildings have energy consumption and production, and a battery.
-   So they can be smart, and use the grid in some optimal fashion.
-- `Smart-Tree` refers to the uniform-cost tree-search algorithm we use to solve the problem, with its extra spices, e.g., 
-  depth-selective search and non-uniform action space discretization.
-- `Smart-Search` refers to the fact that we employ a battery model, and use mixed decision-makers for the decentralized controllers.
+- `Distributed Control` refers to the fact that the search is performed in a distributed manner, 
+   i.e., each agent has its own search tree.
+- `Adequate Tree-Search` refers to the uniform-cost tree-search algorithm we use to solve the problem,
+   with its extra spices that contribute efficiency, e.g., depth-selective search and non-uniform action space
+   discretization, and to the fact that it is based on a battery model we employed, and use mixed decision-makers for
+   the decentralized controllers.
 
 
 ### Formulating the Battery problem as an MDP
 In order to use search algorithms such as Uniform-Cost-Search we need to have a model of the world as a 
 Markov Decision Process (MDP), that we can use for offline planing. The given CityLearn environment, as we already
 mentioned, can be factored into two parts:
-- The Grid model, which consists of the weather parameters (e.g. temperature, solar irradiance, etc), 
-  the grid parameters (e.g. electricity price, carbon intensity, etc) and the district's consumption measured data
+- The Grid model, which consists of the weather parameters (e.g. temperature, solar irradiance, etc.), 
+  the grid parameters (e.g. electricity price, carbon intensity, etc.) and the district's consumption measured data
   (e.g. non-shiftable load and solar generation).
 - The Battery model, which consists of the battery's State of Charge (SoC), Capacity, Nominal power and so on.
 
 
+#### Timescales in the problem
 
+Before delving into further details, it is important to focus on the different timescales which motivated our solution.
+
+- Each action is taken for a time frame of 1 hour, and the environment is updated every hour, so this is the immediate
+  timescale to predict and act upon.
+
+- The basic operational timescale is the 24-hour cycle, which is the natural periodicity of the net consumption of the
+  buildings, as  the generation peak occurs at about noon, and the consumption peak occurs during the evening.
+  This timescale is also the timescale of the electricity price, and the carbon intensity, which constitute the global
+  utility terms.
+
+The gap between these two timescales is the main challenge of the problem, and the reason why we are to use
+deep tree-search algorithms to find the optimal action for each building.
+
+- The long-term timescale is the whole year, which is the timescale of the data we have to train our decision-makers on.
+  
+- Intermediate timescales, like the one-month used in the load factor utility term or the long drifting time of the
+  weather are not considered in our solution, as they are not relevant to the immediate action of the agent.
 
 ### Battery model
 
@@ -106,7 +131,14 @@ function of the net consumption, as it is defined in the CityLearn 2022 challeng
 
 The utility is a weighted sum of four terms: 
 
-- Price:
+$$ U=\frac{1}{3}\frac{P}{P_{0}}+\frac{1}{3}\frac{C}{C_{0}}+\frac{1}{6}\frac{R}{R_{0}}+\frac{1}{6}\frac{L}{L_{0}}, $$
+
+Where $P$ is the district's electricity cost, $C$ is the district's CO$_2$ emission, $R$ is the ramping factor,
+and $L$ is the load factor. All explained below.
+Each term is normalized by the baseline cost (e.g., $P_{0}$), which is the cost of the district without battery usage,
+that is equivalent to consecutive no-op actions.
+
+- Electricity cost:
   $$ P=\sum_{t=0}^{8759}\alpha_{P}(t)\left\lfloor\sum_{t=0}^{4}E^{(i,t)}\right\rfloor _{0} $$
   Here $\alpha_{P}(t)$ is the electricity price at time $t$ (given from the environment), and $E^{(i,t)}$ is the net
   consumption of the $i$'th building at time $t$. The $\left\lfloor\cdot\right\rfloor _{0}$ annotates the positive part
@@ -117,13 +149,57 @@ The utility is a weighted sum of four terms:
   to execute the ReLU.
     
   - To approximate this global trend, we use a leaky ReLU, where the slope of the negative part is a parameter, which
-    we set according to the training set's statistics.
+    we set to $\beta_P\approx 0.16$ according to the training set's statistics (without battery usage).
+    $$ P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\quad\text{ with }\quad\tilde{P}^{\left(i,t\right)}
+    =\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor_{0}+\beta_{P}\left\lceil E^{(i,t)}\right\rceil _{0}\right)\;, $$
+    where $\left\lceil\cdot\right\rceil_{0}$ denotes the negative part.
+    This approximation only applies to the local utility estimation.
 
 - Carbon emission:
+  $$ C=\sum_{t=0}^{8759}\sum_{t=0}^{4}C^{\left(i,t\right)}\quad\text{ with }\quad C^{\left(i,t\right)}
+  =\alpha_{C}(t)\left\lfloor E^{(i,t)}\right\rfloor _{0}\;. $$
+  Here $\alpha_{C}(t)$ is the given carbon intensity at time $t$, and we readily decomposed this term into the sum of
+  local and instantaneous utilities.
+
+- Ramping factor:
+  $$ R=\sum_{t=0}^{8759}\left|\sum_{i=0}^{4}\left[E^{(i,t)}-E^{(i,t-1)}\right]\right| $$
+  Similarly to the price term, this part of the utility can be directly decomposed into the sum of instantaneous
+  utilities, but a global knowledge of the district's net consumption is required to execute the absolute value.
+    
+  - To approximate this, we use a factored ReLU, with a scaling factor $\beta_R\approx 0.75$ set according to the
+    training set's statistics.
+    $$P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\quad\text{ with }\quad P^{\left(i,t\right)}
+    =\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor _{0}+\beta\left\lceil E^{(i,t)}\right\rceil _{0}\right)\;.$$
+    Once again, this approximation only applies to the local utility estimation.
+
+- Load factor:
+  $$ L=1-\frac{1}{8760}\sum_{m=0}^{11}\frac{\sum_{t=0}^{729}\sum_{i=0}^{4}E^{\left(i,730m+t\right)}}{\max\left\{
+  \sum_{i=0}^{4}E^{\left(i,730m+t\right)}\right\} _{t=0}^{729}}\;. $$
+  This is somewhat cumbersome term, but let's break it down intuitively.
+  In the numerator, we have a sum of the net consumption over all (730) time-steps of the month $m$, and in the denominator,
+  we have the maximum (peak) value.
+  This means that this part of the utility penalizes the peak consumption, and rewards the average consumption.
+  To see this, we observe that wherever action we take, the sum of consumption over a whole month is more or less 
+  anyway given by the load-to-generation difference, and the peak consumption is the only thing that can be changed
+  by the action, due to the relatively small timescale at which the battery can get drained or charged.
+  So, higher peak consumption means larger denominators, so lower arguments of the summation, but the leading minus
+  sign in the utility function means that this is penalized to be higher utility.
+
+  - To approximate this term, we take a heuristic approach, where we use the median and max consumption of the no-op
+    trajectory over each month as a proxy for penalizing high (candidate peak) consumptions.
+    $$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\;,\quad\text{ with }\quad
+    \tilde{L}^{\left(i,t,m\right)}=\beta_{L}\left[\exp\left(\frac{\left\lfloor E^{\left(i,730m+t\right)}-\mu_{1/2}^{m}
+    \right\rfloor _{0}}{M^{m}-\mu_{1/2}^{m}}\right)-1\right]\;, $$
+    where $\mu_{1/2}^{m}$ is the median of the no-op trajectory over the month $m$, and $M^{m}$ is its maximum, and
+    $\beta_{L}\approx 84$ is a scaling factor set according to the training set's statistics.
+    The large difference between the scaling factors stems from the different approach and also from the fact that in the
+    utility the different terms are arbitrarily summed over or taken the average of. In part this scaling factor does not
+    matter per se, as each utility term is normalized by the no-op utility, but it is set to match the original 
+    utility scale. It is also varied for the global utility estimation.
 
 
-There is a couple of estimators.
-The first one uses for a single building, independent of the other buildings.
+For the hierarchical control we evaluate a couple of estimators.
+The first one uses only local utilities for a single building, independent of the other buildings.
 The second one uses the net consumption of the whole district, using the actions of the previous agents and 
 no-op's as estimations for the missing next buildings.
 
@@ -175,7 +251,7 @@ alt="."/>
 Controller parameters:
 - `random_order`: Whether to choose the order of the buildings randomly each time-step or not.
 - `prediction_method`: The method to use for predicting the net consumption of each building. Choose from:
-  - `IDX`: Use the time and building indices for perfect prediction over the traning set.
+  - `IDX`: Use the time and building indices for perfect prediction over the training set.
   - `CSV`: Load the predictions from a CSV file.
   - `DOT`: Generate prediction by finding the maximal dot-product overlap of the past 24hr consumption and training data.
   - `MLP`: Predict with Multi-Layer Perceptron, using 24h history of net consumption and global variables.
@@ -190,7 +266,7 @@ Controller parameters:
 
 Planner parameters:
 - `search_depths`: list of depths to search to. The gaps are filled with constant action of the last searched depth.
-- `max_serach_time`: time to terminate search if not finished, and keep to the best tarjectory found by this time.
+- `max_serach_time`: time to terminate search if not finished, and keep to the best trajectory found by this time.
 - `d_action`: the action-space is discrete, so this is the step-size of the action-space.
 - `acion_space_list`: list of actions to search over. If `None`, then the action-space is discretized to `d_action` steps.
 - `utility_weighting`: re-weighting of the different terms in the local utility.
@@ -246,10 +322,10 @@ Utilities for these examples:
 
 w/o agents ramdomization.
 
-| last_agent_type| last buliding (4) net consumption | whole district net consumption |
-|--------------|-----------------------------------|-------------------------------|
-| `RB-local`  | graph  [makes sense]              |                    graph |
-| `RB-global` | graph                             |          graph[makes sense] |
+| last_agent_type | last building's (4) net consumption | whole district net consumption |
+|-----------------|-------------------------------------|--------------------------------|
+| `RB-local`      | graph  [makes sense]                | graph                          |
+| `RB-global`     | graph                               | graph[makes sense]             |
  
 
 ### Summary
@@ -278,18 +354,18 @@ Note to get the 1.3.6 version, from:
 
 TODO: complete!
 
-| File/ folder name               | Purpose                                                          |
-|---------------------------------|------------------------------------------------------------------|
-| `main.py`                       | main script for locally evaluating the model on the trainig data |
-| `utils.py`                      | utility functions for the main script                            |
-| `evaluation_experiment.py`      | script for                                                       |
-| `agents`                        | folder for the agents                                            |
-| ├── `battery_model_rb_agent.py` |                                                                  |
-| └── `controller.py`             |                                                                  |
+| File/ folder name               | Purpose                                                           |
+|---------------------------------|-------------------------------------------------------------------|
+| `main.py`                       | main script for locally evaluating the model on the training data |
+| `utils.py`                      | utility functions for the main script                             |
+| `evaluation_experiment.py`      | script for                                                        |
+| `agents`                        | folder for the agents                                             |
+| ├── `battery_model_rb_agent.py` |                                                                   |
+| └── `controller.py`             |                                                                   |
 
 
 ## References
-- **CityLearn**. [https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge](https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge)
+- **CityLearn challenge**. [https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge](https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge)
 
 
 ## Contact
