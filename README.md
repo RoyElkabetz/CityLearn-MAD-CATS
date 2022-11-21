@@ -247,7 +247,7 @@ The last agent is knowledgeable about the rest of the agents (net consumptions m
 and can use this information to make better decisions in the context of the group.
 
 <figure>
-<img src="figures/controller.png"  width="900" 
+<img src="figures/controller2.png"  width="900" 
 alt="."/>
 </figure>
 > 
