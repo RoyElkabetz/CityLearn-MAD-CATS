@@ -155,8 +155,8 @@ to execute the ReLU.
 To approximate this global trend, we use a leaky ReLU, where the slope of the negative part is a parameter, which
 we set to $\beta_P\approx 0.16$ according to the training set's statistics (without battery usage).
 
-$$ P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\,,\quad\text{ with }\quad\tilde{P}^{\left(i,t\right)}
-=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor_{0}+\beta_{P}\left\lceil E^{(i,t)}\right\rceil _{0}\right)\,, $$
+$$ P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\text{ },\quad\text{ with }\quad\tilde{P}^{\left(i,t\right)}
+=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor_{0}+\beta_{P}\left\lceil E^{(i,t)}\right\rceil _{0}\right)\text{ }, $$
 
 where $\left\lceil\cdot\right\rceil_{0}$ denotes the negative part.
 
@@ -165,8 +165,8 @@ This approximation only applies to the local utility estimation.
 
 #### Carbon emission:
 
-$$ C=\sum_{t=0}^{8759}\sum_{t=0}^{4}\tilde{C}^{\left(i,t\right)}\,,\,,\quad\text{ with }\quad \tilde{C}^{\left(i,t\right)}
-=\alpha_{C}(t)\left\lfloor E^{(i,t)}\right\rfloor _{0}\,. $$
+$$ C=\sum_{t=0}^{8759}\sum_{t=0}^{4}\tilde{C}^{\left(i,t\right)}\text{ },\text{ },\quad\text{ with }\quad \tilde{C}^{\left(i,t\right)}
+=\alpha_{C}(t)\left\lfloor E^{(i,t)}\right\rfloor _{0}\text{ }. $$
 
 Here $\alpha_{C}(t)$ is the given carbon intensity at time $t$, and we readily decomposed this term into the sum of
 local and instantaneous utilities.
@@ -182,8 +182,8 @@ Similarly to the price term, this part of the utility can be directly decomposed
 To approximate this, we use a factored ReLU, with a scaling factor $\beta_R\approx 0.75$ set according to the
 training set's statistics.
 
-$$P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\,,\quad\text{ with }\quad P^{\left(i,t\right)}
-=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor _{0}+\beta\left\lceil E^{(i,t)}\right\rceil _{0}\right)\,.$$
+$$P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\text{ },\quad\text{ with }\quad P^{\left(i,t\right)}
+=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor _{0}+\beta\left\lceil E^{(i,t)}\right\rceil _{0}\right)\text{ }.$$
 
 Once again, this approximation only applies to the local utility estimation.
 
@@ -191,7 +191,7 @@ Once again, this approximation only applies to the local utility estimation.
 #### Load factor:
 
 $$ L=1-\frac{1}{8760}\sum_{m=0}^{11}\frac{\sum_{t=0}^{729}\sum_{i=0}^{4}E^{\left(i,730m+t\right)}}{\max\left\{
-\sum_{i=0}^{4}E^{\left(i,730m+t\right)}\right\} _{t=0}^{729}}\,. $$
+\sum_{i=0}^{4}E^{\left(i,730m+t\right)}\right\} _{t=0}^{729}}\text{ }. $$
 
 This is somewhat cumbersome term, but let's break it down intuitively.
 In the numerator, we have a sum of the net consumption over all (730) time-steps of the month $m$, and in the denominator,
@@ -206,9 +206,9 @@ sign in the utility function means that this is penalized to be higher utility.
 To approximate this term, we take a heuristic approach, where we use the median and max consumption of the no-op
 trajectory over each month as a proxy for penalizing high (candidate peak) consumptions.
 
-$$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\,,\,,\quad\text{ with }\quad
+$$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\text{ },\text{ },\quad\text{ with }\quad
 \tilde{L}^{\left(i,t,m\right)}=\beta_{L}\left[\exp\left(\frac{\left\lfloor E^{\left(i,730m+t\right)}-\mu_{1/2}^{m}
-\right\rfloor _{0}}{M^{m}-\mu_{1/2}^{m}}\right)-1\right]\,, $$
+\right\rfloor _{0}}{M^{m}-\mu_{1/2}^{m}}\right)-1\right]\text{ }, $$
 
 where $\mu_{1/2}^{m}$ is the median of the no-op trajectory over the month $m$, and $M^{m}$ is its maximum, and
 $\beta_{L}\approx 84$ is a scaling factor set according to the training set's statistics.
