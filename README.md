@@ -137,7 +137,7 @@ $$ U=\frac{1}{3}\frac{P}{P_{0}}+\frac{1}{3}\frac{C}{C_{0}}+\frac{1}{6}\frac{R}{R
 
 Where $P$ is the district's electricity cost, $C$ is the district's $\text{CO}_2$ emission, $R$ is the ramping factor,
 and $L$ is the load factor. All explained below.
-Each term is normalized by the baseline cost (e.g., $P_{0}$), which is the cost of the district without battery usage,
+Each term is normalized by the baseline cost (with subscript $0$ ), which is the cost of the district without battery usage,
 that is equivalent to consecutive no-op actions.
 
 - Electricity cost:
