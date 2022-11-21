@@ -90,7 +90,7 @@ Therefore, we formulate the model of the battery as an MDP and together with a p
   battery actions from each state.
   
 The battery MDP $\langle S, A, T, R, \gamma\rangle$ is the following:
-- $s_t = (SoC_{t} - SoC_{t-1} SoC_{t}, Capacity_{t})$ for every $s_t\in S$.
+- $s_t = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$ for every $s_t\in S$.
 - $A$ is defined as some discritization of $[-1, 1]$.
 - $T$ is given by the physical model of the battery, taken from the CityLearn environment.
 - $R$ is a local reward function which was handcrafted in a way that would be globaly consistent with the CityLearn 
@@ -237,9 +237,9 @@ no-op's as estimations for the missing next buildings.
 
 
 
-### Hierarchical control scheme
+### Decentralized control scheme with directional information
 
-We use a decentralised control setting for all agents, where each building has its own set of decision-makers.
+We use a decentralized control setting for all agents, where each building has its own set of decision-makers.
 The last agent is knowledgeable about the rest of the agents (net consumptions modified by the planned actions),
 and can use this information to make better decisions.
 
@@ -313,7 +313,7 @@ We compare the performance of the different decision-makers, and first observe h
 trajectory of an individual building and the whole district.
 
 <figure>
-<img src="/"  width="900" 
+<img src="figures/experiments/dm_net_consumption_comparison_building_0.png"  width="900" 
 alt="."/>
 </figure>
 
