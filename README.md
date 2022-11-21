@@ -82,8 +82,10 @@ Markov Decision Process (MDP), that we can use for offline planing. The given Ci
 mentioned, can be factored into two parts:
 - The Grid model, which consists of the weather parameters (e.g. temperature, solar irradiance, etc.), 
   the grid parameters (e.g. electricity price, carbon intensity, etc.) and the district's consumption measured data
-  (e.g. non-shiftable load and solar generation).
 - The Battery model, which consists of the battery's State of Charge (SoC), Capacity, Nominal power and so on.
+Therefore, we formulate the model of the battery as an MDP and given some predictor that predicts the future behaviour 
+  of the grid and a building's electricity consumption and production we would like to find an optimal policy for that 
+  building that minimizes the global utility function.
 
 
 #### Timescales in the problem
