@@ -144,9 +144,9 @@ that is equivalent to consecutive no-op actions.
 
 $$ P=\sum_{t=0}^{8759}\alpha_P (t)\left\lfloor\sum_{t=0}^4 E^{(i,t)}\right\rfloor_0 $$
 
-  Here $\alpha_P (t)$ is the electricity price at time $t$ (given from the environment), and $E^{(i,t)}$ is the net
-  consumption of the $i$'th building at time $t$. The $\left\lfloor\cdot\right\rfloor _{0}$ annotates the positive part
-  of the sum over all buildings (4 in the training set, but not necessarily 4 in the other sets).
+    Here $\alpha_P (t)$ is the electricity price at time $t$ (given from the environment), and $E^{(i,t)}$ is the net
+    consumption of the $i$'th building at time $t$. The $\left\lfloor\cdot\right\rfloor _{0}$ annotates the positive part
+    of the sum over all buildings (4 in the training set, but not necessarily 4 in the other sets).
   
   Note that this part of the utility can be directly decomposed into the sum of instantaneous utilities at each
   time-step (and be rewritten as a dot-product), but a global knowledge of the district's net consumption is required
