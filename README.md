@@ -141,7 +141,9 @@ Each term is normalized by the baseline cost (with subscript $0$ ), which is the
 that is equivalent to consecutive no-op actions.
 
 - Electricity cost:
-  $$ P=\sum_{t=0}^{8759}\alpha_P (t)\left\lfloor\sum_{t=0}^4 E^{(i,t)}\right\rfloor_0 $$
+
+$$ P=\sum_{t=0}^{8759}\alpha_P (t)\left\lfloor\sum_{t=0}^4 E^{(i,t)}\right\rfloor_0 $$
+
   Here $\alpha_P (t)$ is the electricity price at time $t$ (given from the environment), and $E^{(i,t)}$ is the net
   consumption of the $i$'th building at time $t$. The $\left\lfloor\cdot\right\rfloor _{0}$ annotates the positive part
   of the sum over all buildings (4 in the training set, but not necessarily 4 in the other sets).
