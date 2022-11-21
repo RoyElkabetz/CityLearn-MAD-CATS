@@ -244,7 +244,7 @@ no-op's as estimations for the missing next buildings.
 
 We use a decentralized control setting for all agents, where each building has its own set of decision-makers.
 The last agent is knowledgeable about the rest of the agents (net consumptions modified by the planned actions),
-and can use this information to make better decisions.
+and can use this information to make better decisions in the context of the group.
 
 <figure>
 <img src="/"  width="900" 
