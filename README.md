@@ -9,7 +9,7 @@
 
 <figure>
 <img src="/"  width="900" 
-alt="MAT CATS logo"/>
+alt="MAD CATS logo"/>
 </figure>
 
 ## Introduction
@@ -21,23 +21,25 @@ which is a specified measure of the net energy consumption of the buildings in t
 parts of which are global to the whole district and parts of which are local to each building.
 The action-space is the amount of energy to be stored in the battery, and the observation space is the
 energy consumption and production of the building, as well as additional global parameters such as the 
-electricity price, the CO$_2$ intensity per unit of electricity, the weather parameters, etc.
+electricity price, the $\text{CO}_2$ intensity per unit of electricity, the weather parameters, etc.
 
 The crux of the problem is that:
 - The actions affect the next step, so the net consumption of each building has to be predicted.
 - The utility involves global parts, so the optimal action for one building depends on the actions of the other buildings.
 - The natural periodicity of the net consumption is 24 hours, which even for planning using tree-search 
-  algorithms with moderate branching factors is a lot of states to consider (e.g., `$5^{24}=6\cdot 10^{17}$`).
+  algorithms with moderate branching factors is a lot of states to consider (e.g., $5^{24}=6\cdot 10^{17}$ ).
 
 
 ## Solution
 
 The $i$'th building's net consumption at time $t$ is made out of three key elements:
 
-$$E^{(i,t)} = E_{Load}^{(i,t)} + E_{Solar}^{(i,t)} + E_{Storage}^{(i,t)}$$
+$$E^{(i,t)} = E_\text{Load}^{(i,t)} + E_\text{Solar}^{(i,t)} + E_\text{Storage}^{(i,t)}$$
 
-The non-shiftable load $E_{Load}^{(i,t)}$ and the solar generation $E_{Solar}^{(i,t)} terms are given from the environment.
-The storage $E_{Storage}^{(i,t)}$ is the action of the agent, which is the amount of energy to be charged/discharged from the battery.
+The non-shiftable load $E_\text{Load}^{(i,t)}$ and the solar generation $E_\text{Solar}^{(i,t)}$ terms are given from
+the environment.
+The storage $E_\text{Storage}^{(i,t)}$ is the action of the agent, which is the amount of energy to be
+charged/discharged from the battery.
 
 We can therefore factorize the problem into two sub-environments, one for the agent and one for the "world", where the
 actions only affect the agent's environment, and the time-evolution is dictated by the world's environment.
@@ -133,7 +135,7 @@ The utility is a weighted sum of four terms:
 
 $$ U=\frac{1}{3}\frac{P}{P_{0}}+\frac{1}{3}\frac{C}{C_{0}}+\frac{1}{6}\frac{R}{R_{0}}+\frac{1}{6}\frac{L}{L_{0}}, $$
 
-Where $P$ is the district's electricity cost, $C$ is the district's CO$_2$ emission, $R$ is the ramping factor,
+Where $P$ is the district's electricity cost, $C$ is the district's $\text{CO}_2$ emission, $R$ is the ramping factor,
 and $L$ is the load factor. All explained below.
 Each term is normalized by the baseline cost (e.g., $P_{0}$), which is the cost of the district without battery usage,
 that is equivalent to consecutive no-op actions.
