@@ -101,7 +101,25 @@ The utility is a function of the net consumption ($E$), that is only evaluated a
 However, the predictions and actions are made at each step, so we need to estimate the utility at each step.
 For this purpose, we use an instantaneous utility estimation, which is an approximation of the utility function.
 
-To motivate the construction of the instantaneous utility function, we first observe the utility function as a function of the net consumption:
+To motivate the construction of the instantaneous utility function, we first observe the utility function as a
+function of the net consumption, as it is defined in the CityLearn 2022 challenge environment.
+
+The utility is a weighted sum of four terms: 
+
+- Price:
+  $$ P=\sum_{t=0}^{8759}\alpha_{P}(t)\left\lfloor\sum_{t=0}^{4}E^{(i,t)}\right\rfloor _{0} $$
+  Here $\alpha_{P}(t)$ is the electricity price at time $t$ (given from the environment), and $E^{(i,t)}$ is the net
+  consumption of the $i$'th building at time $t$. The $\left\lfloor\cdot\right\rfloor _{0}$ annotates the positive part
+  of the sum over all buildings (4 in the training set, but not necessarily 4 in the other sets).
+  
+  Note that this part of the utility can be directly decomposed into the sum of instantaneous utilities at each
+  time-step (and be rewritten as a dot-product), but a global knowledge of the district's net consumption is required
+  to execute the ReLU.
+    
+  - To approximate this global trend, we use a leaky ReLU, where the slope of the negative part is a parameter, which
+    we set according to the training set's statistics.
+
+- Carbon emission:
 
 
 There is a couple of estimators.
