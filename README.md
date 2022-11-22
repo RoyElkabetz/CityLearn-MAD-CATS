@@ -19,15 +19,15 @@ There is a battery in each building, which can be used to store energy, and a so
 Each building has its own energy consumption and production, and the goal is to minimize the utility,
 which is a specified measure of the net energy consumption of the buildings in the grid, 
 parts of which are global to the whole district and parts of which are local to each building.
-The action-space is the amount of energy to be stored in the battery, and the observation space is the
+The action-space for each building is the amount of energy to be charged/discharged to the battery, which is continues in $[-1, 1]$, where $1$ and $-1$ stands for fully charge and fully discharge the battery respectively. The observation space is the
 energy consumption and production of the building, as well as additional global parameters such as the 
 electricity price, the $\text{CO}_2$ intensity per unit of electricity, the weather parameters, etc.
 
 The crux of the problem is that:
-- The actions affect the next step, so the net consumption of each building has to be predicted.
+- Each building's actions affect its future net consumption, so the net consumption of each building has to be predicted.
 - The utility involves global parts, so the optimal action for one building depends on the actions of the other buildings.
-- The natural periodicity of the net consumption is 24 hours, which even for planning using tree-search 
-  algorithms with moderate branching factors is a lot of states to consider (e.g., $5^{24}=6\cdot 10^{17}$ ).
+- The natural periodicity of the net consumption is 24 hours, which for planning using tree-search 
+  algorithms even with a moderate branching factors (i.e. 5) is intractable (e.g., $5^{24}=6\cdot 10^{17}$ ).
 
 
 ## Solution
