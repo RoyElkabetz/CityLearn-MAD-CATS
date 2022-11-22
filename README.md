@@ -195,8 +195,6 @@ Similarly to the price term, this part of the utility can be directly decomposed
 To approximate this, we use a factored ReLU, with a scaling factor $\beta_R\approx 0.75$ set according to the
 training set's statistics.
 
-$$P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\text{ },\quad\text{ with }\quad P^{\left(i,t\right)}
-=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor _{0}+\beta\left\lceil E^{(i,t)}\right\rceil _{0}\right)\text{ }.$$
 
 $$R\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}R^{\left(i,t\right)}\text{ },\quad\text{ with }\quad R^{\left(i,t\right)}
 =\beta_{R}\left\lfloor E^{(i,t)}-E^{(i,t-1)}\right\rfloor _{0}\text{ }.$$
