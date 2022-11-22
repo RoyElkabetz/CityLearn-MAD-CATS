@@ -8,7 +8,7 @@
 
 
 <figure>
-<img src="/"  width="900" 
+<img src="figures/logo.jpeg"  width="200" 
 alt="MAD CATS logo"/>
 </figure>
 
