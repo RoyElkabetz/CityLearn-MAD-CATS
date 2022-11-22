@@ -243,11 +243,10 @@ and can use this information to make better decisions in the context of the grou
 <img src="figures/controller2.png"  width="900" 
 alt="."/>
 </figure>
-> 
+> Schematic illustration of the decentrelized controller architecture in use.
 
 ### Depth-selective search
-
-
+`TODO`
 
 ## Alternative Rule-based solution
 A set of rules defines the next move for each building independently (locally), based on the next hour prediction.
