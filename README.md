@@ -135,7 +135,7 @@ The key parameters of the model are the battery's capacity, the battery's chargi
 
 ### Local utility estimation
 
-The utility is a function of the net consumption ($E$), that is only evaluated at the end of the year (episode).
+The utility is a function of the net consumption ( $E$ ), that is only evaluated at the end of the year (episode).
 However, the predictions and actions are made at each step, so we need to estimate the utility at each step.
 For this purpose, we use an instantaneous utility estimation, which is an approximation of the utility function.
 
@@ -146,7 +146,7 @@ The utility is a weighted sum of four terms:
 
 $$ U=\frac{1}{3}\frac{P}{P_{0}}+\frac{1}{3}\frac{C}{C_{0}}+\frac{1}{6}\frac{R}{R_{0}}+\frac{1}{6}\frac{L}{L_{0}}, $$
 
-Where $P$ is the district's electricity cost, $C$ is the district's $\text{CO}_2$ emission, $R$ is the ramping factor,
+Where $P$ is the district's electricity price cost, $C$ is the district's $\text{CO}_2$ emission, $R$ is the ramping factor,
 and $L$ is the load factor. All explained below.
 Each term is normalized by the baseline cost (with subscript $0$ ), which is the cost of the district without battery usage,
 that is equivalent to consecutive no-op actions.
