@@ -243,6 +243,7 @@ and can use this information to make better decisions in the context of the grou
 <img src="figures/controller2.png"  width="900" 
 alt="."/>
 </figure>
+
 > Schematic illustration of the decentrelized controller architecture in use.
 
 ### Depth-selective search
