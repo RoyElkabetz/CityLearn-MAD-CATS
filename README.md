@@ -112,8 +112,7 @@ Before delving into further details, it is important to focus on the different t
   This timescale is also the timescale of the electricity price, and the carbon intensity, which constitute the global
   utility terms.
 
-The gap between these two timescales is the main challenge of the problem, and the reason why we are to use
-deep tree-search algorithms to find the optimal action for each building.
+The gap between these two timescales is the main challenge of the problem, and the reason why we are to use tree-search algorithms to find the optimal action for each building.
 
 - The long-term timescale is the whole year, which is the timescale of the data we have to train our decision-makers on.
   
@@ -123,12 +122,10 @@ deep tree-search algorithms to find the optimal action for each building.
 ### Battery model
 
 We reverse-engineered the battery model from the `CityLearn` environment, and used it as the MDP's (Markov decision process)
-transition function for the planning.
+transition function for the planning as mentioned above.
 
-The key parameters of the model are the battery's capacity, the battery's charging efficiency, and the battery's discharging efficiency.
-SoC
-capacity
-nominal power
+The key parameters of the model are the battery's capacity, the battery's charging and discharging efficiency, and the battery's nominal power.
+
 
 > copy from overleaf
 
