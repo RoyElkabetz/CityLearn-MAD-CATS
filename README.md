@@ -84,20 +84,20 @@ mentioned, can be factored into two parts:
 - The **Grid** model, which consists of the weather parameters (e.g. temperature, solar irradiance, etc.), 
   the grid parameters (e.g. electricity price, carbon intensity, etc.) and the buildings' electricity measured data 
   (e.g. non-shiftable load and solar generation).
-- The **Battery** model, which consists of the battery's State of Charge (SoC), Capacity, Nominal power and so on.
+- The **Battery** model, which consists of the battery's State of Charge (SoC), Capacity, Nominal-Power and so on.
 Therefore, we formulate the model of the battery as an MDP and together with a predictor that predicts the future 
-  behaviour of the grid and each building's electricity consumption and production we use UCS to find the best plan of 
-  battery actions from each state.
+  behaviour of the grid and each building's electricity consumption and production, we use UCS to find the best plan of 
+  battery actions from each state for each building.
   
-The battery MDP $\langle S, A, T, R, \gamma\rangle$ is the following:
-- $S$ is composed of the battery state such that $s_t  = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$.
-- $A$ is defined as some discritization of $[-1, 1]$, i.e. $[-1.0, -0.5, -0.1, 0, 0.1, 0.5, 1.0]$.
+The battery MDP $\langle S, A, T, R, \gamma\rangle$ we use is the following:
+- $S$ is composed of the battery state such that at time step $t$, $s_t  = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$.
+- $A$ is defined as some discritization of the continuous action space $[-1, 1]$, i.e. $[-1.0, -0.5, -0.1, 0, 0.1, 0.5, 1.0]$.
 - $T$ is given by the physical model of the battery, taken from the CityLearn environment.
 - $R$ is a local reward function (cost function in our case) which was handcrafted in a way that would be globally consistent with the CityLearn's 
   utility (explained in detail later). 
   
 The goal here is to find a trajectory of battery's charge/discharge actions with minimal cost given a set of world 
-predictions and then execute the first or a few actions from that trajectory, and then re-plan.   
+predictions and then execute the single first or the first few actions from that trajectory, and then re-plan.   
 
 
 #### Timescales in the problem
