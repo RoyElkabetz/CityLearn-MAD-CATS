@@ -233,13 +233,6 @@ utility scale. It is also varied for the global utility estimation.
 
 
 
-For the hierarchical control we evaluate a couple of estimators.
-The first one uses only local utilities for a single building, independent of the other buildings.
-The second one uses the net consumption of the whole district, using the actions of the previous agents and 
-no-op's as estimations for the missing next buildings.
-
-
-
 ### Decentralized control scheme with directional information
 
 We use a decentralized control setting for all agents, where each building has its own set of decision-makers.
