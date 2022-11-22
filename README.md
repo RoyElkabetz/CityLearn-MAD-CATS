@@ -51,9 +51,9 @@ The actions affect the net electricity consumption via the equation above, and a
 We implement and use:
 
 - Uniform-Cost Search algorithm (a type of tree-search), which is a modified 
-[Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm), to find the optimal action for each building.
+[Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm), to find the next optimal action for each building.
 - Various predictors to predict the net consumption of each building for the next time frame (1 or 24 hrs)
-- Battery model to translate action to change in battery's state of charge (SoC).
+- Battery model to translate action to change in battery's state.
 - Local (instantaneous) estimation of the utility function to guide the search.
 - Depth-selective search, where the search is performed only on specified levels of the tree, and the rest is 
   bridged by steps among which the action is uniformly divided.
@@ -68,8 +68,8 @@ Let's break down the name of the repository:
 MAD CATS (Multi-Agent Distributed Control with Adequate Tree-Search)
 - `CityLearn` is the name of the challenge, referring to the fact that there is a collective (city) learning goal.
 - `Multi-Agent` is the type of problem, referring to the same thing basically.
-- `Distributed Control` refers to the fact that the search is performed in a distributed manner, 
-   i.e., each agent has its own search tree.
+- `Distributed Control` refers to the fact that the actions are performed in a distributed manner, 
+   i.e., each agent has its own policy and own search tree which is independent of others.
 - `Adequate Tree-Search` refers to the uniform-cost tree-search algorithm we use to solve the problem,
    with its extra spices that contribute efficiency, e.g., depth-selective search and non-uniform action space
    discretization, and to the fact that it is based on a battery model we employed, and use mixed decision-makers for
