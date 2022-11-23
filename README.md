@@ -247,7 +247,7 @@ alt="."/>
 > Schematic illustration of the decentrelized controller architecture in use.
 
 ### Depth-selective search
-When using the tree search algorithms the worst case time complexity of the search is given by $b^d$ where $b$ is the branching factor (the size of the action space) and $d$ is the depth of search (the depth of the solution or goal). This estimation is an upper bound for the case of UCS because the search is guided by a cost function $g(n)$. Therefore, for UCS, a better estimamtion for the time complexity of the algorithm would be $b^{\frac{C}{\epsilon}}$ where $C$ is the cost of the goal state and $epsilon$ is the lowest arc cost. 
+When using the tree search algorithms the worst case time complexity of the search is given by $b^d$ where $b$ is the branching factor (the size of the action space) and $d$ is the depth of search (the depth of the solution or goal). This estimation is an upper bound for the case of UCS because the search is guided by a cost function $g(n)$. Therefore, for UCS, a better estimamtion for the time complexity of the algorithm would be $b^{\frac{C}{\epsilon}}$ where $C$ is the cost of the goal state and $\epsilon$ is the lowest arc cost. 
 
 Although we search using UCS, we do not look for a goal state, instead we optimize the search for reaching to the correletion depth of the environment which in our case is 24hrs / or 24 steps of search. 
 
