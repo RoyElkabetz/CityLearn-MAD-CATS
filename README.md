@@ -27,7 +27,7 @@ The crux of the problem is that:
 - Each building's actions affect its future net consumption, so the net consumption of each building has to be predicted.
 - The utility involves global parts, so the optimal action for one building depends on the actions of the other buildings.
 - The natural periodicity of the net consumption is 24 hours, which for planning using tree-search 
-  algorithms even with a moderate branching factors (i.e. 5) is intractable (e.g., $5^{24}=6\cdot 10^{17}$ ).
+  algorithms even with a moderate branching factors (i.e. 5) is intractable (e.g., $5^{24}=6\cdot 10^{16}$ ).
 
 
 ## Solution
@@ -247,13 +247,16 @@ alt="."/>
 > Schematic illustration of the decentrelized controller architecture in use.
 
 ### Depth-selective search
-When using the tree search algorithms the worst case time complexity of the search is given by $b^d$ where $b$ is the branching factor (the size of the action space) and $d$ is the depth of search (the depth of the solution or goal). This estimation is an upper bound for the case of UCS because the search is guided by a cost function $g(n)$. Therefore, for UCS, a better estimamtion for the time complexity of the algorithm would be $b^{\frac{C}{\epsilon}}$ where $C$ is the cost of the goal state and $\epsilon$ is the lowest arc cost. 
 
-Although we search using UCS, we do not look for a goal state, instead we optimize the search for reaching to the correletion depth of the environment which in our case is 24hrs / or 24 steps of search. 
+When using tree search algorithms the search worst-case time complexity is given by $b^d$ where $b$ is the branching factor (the size of the action space) and $d$ is the depth of search (the depth of the solution or goal). This estimation is an upper bound for the case of UCS (with constant weights) because the search is guided by a cost function $g(n)$. Therefore, for UCS, a better estimamtion for the time complexity of the algorithm would be $b^{\frac{C}{\epsilon}}$ where $C$ is the cost of the goal state and $\epsilon$ is the lowest arc cost. 
 
-The problem is that we have limited time in the context of the challenge, but even if that was not the case, even when using a relatively small branching factor of size $b=10$ the search time and space complexity get too long even for depth $d=8$. 
+Usually UCS comes to mind when having a clear definition of a goal state. Although using UCS, here, this is not the case, we do not look for a goal state, instead we optimize the search for reaching to the correletion depth (natural periodicity) of the environment which in our case is 24hrs / or 24 steps of search. 
 
-Therefore, in order to reach the 24hrs correlation depth in the enviornment we used a trick we call Depth-Selective search, where we a priori choose in which depths we are going to expand the entire action space (search proparly) and in which depths we will rollout using constant or predefined actions (see figure below). That way, we are able to expand much deeper trees where we trade off width with depth and reach the interesting correlations in the environment.
+The problem is that we are given limited time for evaluation in the context of the challenge, but even if that was not the case, even a moderate branching factor (i.e $b=5$), the search gets intractable (e.g. $5^{24}\approx 6\cdot 10^{16} $). 
+
+Therefore, in order to reach search depth of 24hrs we use a trick we call Depth-Selective search. We a priori choose in which depths we are going to expand the entire action space (search proparly), and in which depths we rollout using constant or predefined actions $a_c$ (see the figure below). 
+
+That way, we are able to expand much deeper trees where we trade off width with depth and reach the interesting correlations in the environment without having to deal with the exponential barrier of large branching facotrs.
 
 <figure>
 <img src="figures/dss.svg"  width="900" 
@@ -265,7 +268,7 @@ alt="."/>
 
 
 ## Alternative Rule-based solution
-A set of rules defines the next move for each building independently (locally), based on the next hour prediction.
+Alternatively, when not using search, we use a set of rules that defines the next move for each building independently (locally), based on the next hour prediction.
 The rules were defined to "flatten" the net consumption curve (closing the temporal gap / phase-shift between 
 peak production and peak demand), and by this to minimize the utility:
 - If the next hour production is higher than the consumption, the battery is charged by the extra amount.
