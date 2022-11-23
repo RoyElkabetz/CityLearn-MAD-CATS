@@ -240,21 +240,21 @@ The last agent is knowledgeable about the rest of the agents (net consumptions m
 and can use this information to make better decisions in the context of the group.
 
 <figure>
-<img src="figures/controller2.png"  width="900" 
+<img src="figures/controller.svg"  width="900" 
 alt="."/>
 </figure>
 
 > Schematic illustration of the decentrelized controller architecture in use.
 
 ### Depth-selective search
-`TODO`
+When using the UCS algorithm the worst case time complexity of the search is given by $b^d$ where $b$ is the branching factor (the size of the action space) and $d$ is the depth of search (the depth of the solution or goal). This estimation is an upper bound for the case of UCS because the search is guided by a cost function $g(n)$ 
 
 <figure>
 <img src="figures/dss.svg"  width="900" 
 alt="."/>
 </figure>
 
-> Depth Selective Search (DSS) illustration, where we search only in the upper and lower part of the tree while in the middle we rollout constant predefined actions. 
+> Depth Selective Search (DSS) algorithm illustration. We search only in a few selective parts of the tree (yellow) while on the other parts (pink) we use rollout with constant predefined actions. 
 
 
 
