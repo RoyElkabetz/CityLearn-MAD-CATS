@@ -249,6 +249,15 @@ alt="."/>
 ### Depth-selective search
 `TODO`
 
+<figure>
+<img src="figures/dss.svg"  width="900" 
+alt="."/>
+</figure>
+
+> Depth Selective Search (DSS) illustration, where we search only in the upper and lower part of the tree while in the middle we rollout constant predefined actions. 
+
+
+
 ## Alternative Rule-based solution
 A set of rules defines the next move for each building independently (locally), based on the next hour prediction.
 The rules were defined to "flatten" the net consumption curve (closing the temporal gap / phase-shift between 
