@@ -2,6 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1472.3999pt" height="896.3999pt" viewBox="0 0 1472.3999 896.3999">
 <g enable-background="new">
+<path transform="matrix(1,0,0,-1,-1855.8,2396.2)" d="M 1856 2396 L 1856 1500 L 3328 1500 L 3328 2396 Z " fill="#fafac8" fill-rule="evenodd"/>
 <path transform="matrix(1,0,0,-1,-1855.8,2396.2)" d="M 1856 1820 L 1856 1500 L 3328 1500 L 3328 1820 Z " fill="#fae1fa" fill-rule="evenodd"/>
 <path transform="matrix(1,0,0,-1,-1855.8,2396.2)" d="M 1856 2223.26 L 1856 1852 L 3326.07 1852 L 3326.07 2223.26 Z " fill="#fafac8" fill-rule="evenodd"/>
 <path transform="matrix(1,0,0,-1,-1855.8,2396.2)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round" fill="none" stroke="#000000" d="M 3248 1892 L 3248 1776 "/>
@@ -278,6 +279,13 @@
 </clipPath>
 <g clip-path="url(#cp14)">
 <text xml:space="preserve" transform="matrix(1 0 -0 1 13.01001 1381.2058)" font-size="24.7871" font-family="CMR17"><tspan y="-775.066" x="0 12.666209 28.23251 45.40997 61.64552 78.2033">SEARCH</tspan></text>
+</g>
+<clipPath id="cp15">
+<path transform="matrix(1,0,0,-1,276.19996,555.9199)" d="M -1 -1 L 22.946 -1 L 22.946 15.39 L -1 15.39 Z "/>
+</clipPath>
+<g clip-path="url(#cp15)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 276.19996 1333.5299)" font-size="24.7871" font-family="CMMI12" font-style="italic"><tspan y="-781.328" x="0">a</tspan></text>
+<text xml:space="preserve" transform="matrix(1 0 -0 1 276.19996 1333.5299)" font-size="20.6625" font-family="CMMI12" font-style="italic"><tspan y="-777.61" x="12.741">c</tspan></text>
 </g>
 </g>
 </svg>
