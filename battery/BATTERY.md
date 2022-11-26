@@ -107,7 +107,7 @@ $$
     \end{cases}
 $$
 
-The intuition behind the SoC expression, $\phi^{(i, t)}$, is as follows. First, recall that $0<\eta^{(i, t)}\leq 1, \forall (i, t)$, therefore, when an agent chooses an action which results in $E^{(i, t)}$ amount of energy to charge into the battery, the actual amount of energy being charged is $E^{(i, t)}\cdot\eta^{(i, t)}$ which is smaller than $ E^{(i, t)}$. Thus, the amount of energy actually being charged is less than the amount commanded, and the rest transforms into heat. 
+The intuition behind the SoC expression, $\phi^{(i, t)}$, is as follows. First, recall that $0<\eta^{(i, t)}\leq 1, \forall (i, t)$, therefore, when an agent chooses an action which results in $E^{(i, t)}$ amount of energy to charge into the battery, the actual amount of energy being charged is $E^{(i, t)}\cdot\eta^{(i, t)}$ which is smaller than $E^{(i, t)}$. Thus, the amount of energy actually being charged is less than the amount commanded, and the rest transforms into heat. 
 
 The current battery model does not contain a heat-dissipation model, therefore, the uncharged energy, $E^{(i, t)}_{uncharged}=E^{(i, t)}\cdot\left(1-\eta^{(i, t)}\right)$ just disappear. 
 
@@ -116,7 +116,7 @@ Similarly, when the agent consumes an $E^{(i, t)}$ amount of energy from the bat
 ### Battery model summary
 Finally, we model the battery's State-of-Charge (SoC) using the above equations, describing the SoC evolution as a time series of energy charge/discharge operations. 
 
-The amount of energy being charged/discharged at each time step is a function of the agent's operation $a^{(i, t)}$ and the physical properties of the battery, which are the battery's capacity ($C^{(i, t)}$) and nominal-power ($P^{(i, t)}_{nominal}$).
+The amount of energy being charged/discharged at each time step is a function of the agent's operation $a^{(i, t)}$ and the physical properties of the battery, which are the battery's capacity ( $C^{(i, t)}$ ) and nominal-power ( $P^{(i, t)}_{nominal}$ ).
 
 The *capacity-power-curve* together with the nominal-power relation determines the limiting factors on the amount of energy that can be charged/discharged at a single time step (in our case, is one hour). 
 
