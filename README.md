@@ -124,10 +124,7 @@ The gap between these two timescales is the main challenge of the problem, and t
 We reverse-engineered the battery model from the `CityLearn` environment, and used it as the MDP's (Markov decision process)
 transition function for the planning as mentioned above.
 
-The key parameters of the model are the battery's capacity, the battery's charging and discharging efficiency, and the battery's nominal power.
-
-
-> copy from overleaf
+The key parameters of the model are the battery's capacity, the battery's charging and discharging efficiency, and the battery's nominal power. For a complete mathematical analysis of the battery model used in the CityLearn's environment see [battery model analysis](/battery/BATTERY.md).
 
 
 
