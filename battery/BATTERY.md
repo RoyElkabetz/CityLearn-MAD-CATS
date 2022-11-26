@@ -1,13 +1,12 @@
 ## The Storage Device Model
-Understanding the model of the buildings' storage devices used in the environment is very important. This model should be used in our agent's decision-making process (known as ``domain knowledge'') instead of training the agent in a model-free framework, which could be much more difficult. 
 
-Most of the storage-device model parameters are not part of the input data (e.g., capacity and nominal power), However, they could easily be inferred following a simple action protocol (like taking the maximal action, $a=1$) for a few time steps (you can think of this as informative exploration). 
+Understanding the model of the buildings' storage devices used in the environment is very important. This model will be used in our agent's decision-making process (known as "domain knowledge") instead of using model-free Reinforcement Learning framework, which would be problematic in the current environment due to the lack of data. Most of the storage-device model parameters are not part of the input data (e.g., capacity and nominal power). However, they could easily be computed following a simple action protocol (like by taking extreme actions, $a=1$) for a few time steps (you can think of this as informative exploration). 
 
-In this section, we describe the storage-device (battery) model as defined in the CityLearn 2022 environment and how it relates to an agent's actions.
+In this section, we describe the storage-device (battery) model as defined in the CityLearn 2022 environment and how it relates to the agents' actions.
 
 ### Battery model
 
-The authors in \cite{ghasemi2020multi}\cite{shojaeighadikolaei2021demand} model a storage device's State-of-charge (SoC) in a continuous time domain using the next equation
+The authors in [1] snd [2] model a storage device's State-of-charge (SoC) in a continuous time domain using the next equation
 
 $$
 \phi(t) = \phi(0) + \frac{1}{C}\int_{0}^{t} P_{Storage}(\tau)d\tau
@@ -41,7 +40,7 @@ In the CityLearn environment, every building may have a different nominal power 
 
 The function $f$ in the CityLearn environment is referred to as a *capacity-power-curve*. A *capacity-power-curve* is (usually) a measured curve that specifies the battery's power input/output limit for a specific SoC (or normalized SoC, $\frac{SoC}{C} \in [0, 1]$ which is unitless). In our case, the capacity power curve in use (for all buildings in phase 1) is the one depicted in the figure below, which contains three measured data points of **(normalized SoC, nominal-power fraction)**, and the linear interpolation between those points. 
 
-For example, given the curve below, say we would like to compute the power limit, $P_{limit}$ (charge or discharge, in our case, is the same, although in the general case, they could be different), of the battery when it is $90\%$ fully-charged ($SoC_{norm} = \frac{SoC}{C}= 0.9$). We can compute it using linear interpolation between the two closest measured points (in blue) to the goal point (in red). Therefore, using the capacity-power-curve, we can compute the power and energy limits for a specific time frame of our battery for each SoC.
+For example, given the curve below, say we would like to compute the power limit, $P_{limit}$ (charge or discharge, in our case, is the same, although in the general case, they could be different), of the battery when it is $90$ precent fully-charged ( $SoC_{norm} = \frac{SoC}{C}= 0.9$ ). We can compute it using linear interpolation between the two closest measured points (in blue) to the goal point (in red). Therefore, using the capacity-power-curve, we can compute the power and energy limits for a specific time frame of our battery for each SoC.
 
 
 <figure>
@@ -122,3 +121,9 @@ The amount of energy being charged/discharged at each time step is a function of
 The *capacity-power-curve* together with the nominal-power relation determines the limiting factors on the amount of energy that can be charged/discharged at a single time step (in our case, is one hour). 
 
 Another important parameter of the battery is its efficiency $\eta^{(i, t)}$, which determines the amount of energy actually being charged/discharged given the energy results from the agent's action and the battery's limiting factors. The battery's efficiency is a function of the energy being charged/discharged. Hence, it depends on the agent's action and is usually given in the form of a *power-efficiency-curve* as above. 
+
+## Reference
+
+[1] A multi-agent deep reinforcement learning approach for a distributed energy marketplace in smart grids
+
+[2] Demand responsive dynamic pricing framework for prosumer dominated microgrids using multiagent reinforcement learning
