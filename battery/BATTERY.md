@@ -43,7 +43,13 @@ The function $f$ in the CityLearn environment is referred to as a *capacity-powe
 
 For example, given the curve below, say we would like to compute the power limit, $P_{limit}$ (charge or discharge, in our case, is the same, although in the general case, they could be different), of the battery when it is $90\%$ fully-charged ($SoC_{norm} = \frac{SoC}{C}= 0.9$). We can compute it using linear interpolation between the two closest measured points (in blue) to the goal point (in red). Therefore, using the capacity-power-curve, we can compute the power and energy limits for a specific time frame of our battery for each SoC.
 
-![](../figures/battery_capacity_power_curve.png)
+
+<figure>
+<img src="../figures/battery_capacity_power_curve.png"  width="900" 
+alt="battery_capacity_power_curve"/>
+</figure>
+
+> A capacity power curve as it is given in the CityLearn environment.
 
 
 ### Capacity degradation
@@ -84,7 +90,13 @@ $$
 
 where $E^{(i, t)}$ is the charging energy and $P_{nominal}\Delta\tau$ is the agent's maximal input/output power of the battery. Then, for each normalized energy, the battery's efficiency, $\eta^{(i, t)}$, is determined from the battery's *power-efficiency-curve*, using linear interpolation (and in the case of the CityLearn curve also a $\sqrt{\cdot}$ operation).
 
-![](../figures/battery_power_efficiency_curve.png)
+
+<figure>
+<img src="../figures/battery_power_efficiency_curve.png"  width="900" 
+alt="battery_capacity_power_curve"/>
+</figure>
+
+> A battery power efficiency curve as it is given in the CityLearn environment.
 
 This efficiency then determines how much from the agent's energy command to charge (discharge) is actually being charged (discharged) to (from) the battery, and therefore the current SoC is following from the next expression
 
