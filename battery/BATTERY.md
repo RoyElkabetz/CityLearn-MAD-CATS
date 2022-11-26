@@ -28,7 +28,7 @@ where the $(i, t)$ index pair correspond to the $i^{th}$ building at time step $
 A battery (storage device) can be charged or discharged with energy (in units of kWh), which is given as a function of the $i^{th}$ agent's action at time step $t$, $a^{(i, t)}$, and can be written as follows
 
 $$
-    E^{(i,t)} &= 
+    E^{(i,t)} = 
     \begin{cases}
     \min{\left[a^{(i, t)}\cdot C^{(i,t)}, f(\phi^{(i, t)})\right]} & if\quad  a^{(i, t)}\geq 0\\
     \max{\left[a^{(i, t)}\cdot C^{(i, t)}, -f(\phi^{(i, t)})\right]} & otherwise
@@ -50,19 +50,19 @@ For example, given the curve below, say we would like to compute the power limit
 Next, we present the concept of battery capacity degradation as it is defined in the CityLearn environment. In the given environment, the capacity for each building degrades in time according to the next equation
 
 $$
-    C^{(i, t + 1)} &= C^{(i, t)} - \delta C^{(i, t)}
+    C^{(i, t + 1)} = C^{(i, t)} - \delta C^{(i, t)}
 $$
 
 where $\delta C^{(i, t)}$ is the degradation of the $i^{th}$ building's battery's capacity at time step $t$ and is given by
 
 $$
-    \delta C^{(i, t)} &= \epsilon C^{(i, 0)} \frac{\vert E^{(i, t)}\vert}{2C^{(i, t)}}
+    \delta C^{(i, t)} = \epsilon C^{(i, 0)} \frac{\vert E^{(i, t)}\vert}{2C^{(i, t)}}
 $$
 
 where $\epsilon$ is the *capacity-loss-coefficient* and is usually a small number (i.e., $1e-5$) and $E^{(i, t)}$ is the charging/discharging energy, which in the CityLearn environment also referred to as the *energy-balance* and can be computed directly from the SoC history as follows
 
 $$
-    E^{(i, t)} &= 
+    E^{(i, t)} = 
     \begin{cases}
     \delta\phi^{(i, t)} \cdot (1-L_i) / \eta^{(i, t)} & if\quad \delta\phi^{(i, t)}\geq 0\\
     \delta\phi^{(i, t)} \cdot (1-L_i) \cdot \eta^{(i, t)} & otherwise
@@ -79,7 +79,7 @@ In general, the capacity degradation of batteries is proportional to the change 
 The efficiency (also known as technical-efficiency) of the battery is a function of the normalized energy charged (discharged) into (from) the battery. The normalized energy is defined as follows
 
 $$
-    E^{(i, t)}_{norm} &= \frac{E^{(i, t)}}{P_{nominal}\Delta\tau}
+    E_{norm}^{(i, t)} = \frac{E^{(i, t)}}{P_{nominal}\Delta\tau}
 $$
 
 where $E^{(i, t)}$ is the charging energy and $P_{nominal}\Delta\tau$ is the agent's maximal input/output power of the battery. Then, for each normalized energy, the battery's efficiency, $\eta^{(i, t)}$, is determined from the battery's *power-efficiency-curve*, using linear interpolation (and in the case of the CityLearn curve also a $\sqrt{\cdot}$ operation).
@@ -89,7 +89,7 @@ where $E^{(i, t)}$ is the charging energy and $P_{nominal}\Delta\tau$ is the age
 This efficiency then determines how much from the agent's energy command to charge (discharge) is actually being charged (discharged) to (from) the battery, and therefore the current SoC is following from the next expression
 
 $$
-    \phi^{(i, t)} &=
+    \phi^{(i, t)} =
     \begin{cases}
     \min{\left[\phi^{(i, t-1)} + E^{(i, t)}\cdot\eta^{(i, t)}, C^{(i, t-1)}\right]} & if\quad E^{(i, t)}\geq 0\\
     \max{\left[\phi^{(i, t-1)} + E^{(i, t)}/\eta^{(i, t)}, 0\right]} & otherwise
