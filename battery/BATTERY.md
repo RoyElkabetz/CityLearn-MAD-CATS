@@ -87,7 +87,7 @@ $$
     E_{norm}^{(i, t)} = \frac{E^{(i, t)}}{P_{nominal}\Delta\tau}
 $$
 
-where $E^{(i, t)}$ is the charging energy and $P_{nominal}\Delta\tau$ is the agent's maximal input/output power of the battery. Then, for each normalized energy, the battery's efficiency, $\eta^{(i, t)}$, is determined from the battery's *power-efficiency-curve*, using linear interpolation (and in the case of the CityLearn curve also a $\sqrt{\cdot}$ operation).
+where $E^{(i, t)}$ is the charging energy and $P_{nominal}\Delta\tau$ is the agent's maximal input/output power of the battery. Then, for each normalized energy, the battery's efficiency, $\eta^{(i, t)}$, is determined from the battery's *power-efficiency-curve*, using linear interpolation (and in the case of the CityLearn curve also a $\sqrt{\cdot}$ operation). It is important to note that if $\frac{E^{(i, t)}}{P_{nominal}\Delta\tau}>1$, the energy is clipped such that $\frac{E^{(i, t)}}{P_{nominal}\Delta\tau}=1$, so one can not charge the battery with an amount of energy in the single time frame that is larger than the battery's nominal power.
 
 
 <figure>
