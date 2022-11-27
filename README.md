@@ -101,9 +101,9 @@ The battery MDP $\langle S, A, T, R, \gamma\rangle$ parameter swe use are:
   $s_t  = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$.
 - The *action* $A$ is defined as some discretization of the continuous action space $[-1, 1]$, e.g., 
   $[-1.0, -0.5, -0.1, 0, 0.1, 0.5, 1.0]$.
-- The *transition* $T$ is given by the [physical model of the battery](#battery model), reverse-engineered from the
+- The *transition* $T$ is given by the [physical model of the battery](#battery-model), reverse-engineered from the
   CityLearn environment.
-- The *reward* $R$ is a [local reward function](#local utility estimation) (cost function in our case) which we
+- The *reward* $R$ is a [local reward function](#local-utility-estimation) (cost function in our case) which we
   handcrafted to be globally consistent with the original CityLearn's utility. 
   
 The goal here is to find a trajectory of battery's charge/discharge actions with minimal cost given a set of world 
