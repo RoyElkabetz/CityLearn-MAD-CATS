@@ -96,7 +96,7 @@ Therefore, we formulate the model of the battery as an MDP, and together with a 
 behavior of the grid and each building's electricity consumption and production, we use UCS to find the best plan of 
 battery actions from each state for each building.
   
-The battery MDP $\langle S, A, T, R, \gamma\rangle$ parameter swe use are:
+The battery MDP $\langle S, A, T, R\rangle$ parameters we use are:
 - The *state*  $S$ is composed of the battery state (SoC derivative, Soc, and capacity) at time step $t$,
   $s_t  = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$.
 - The *action* $A$ is defined as some discretization of the continuous action space $[-1, 1]$, e.g., 
@@ -106,48 +106,49 @@ The battery MDP $\langle S, A, T, R, \gamma\rangle$ parameter swe use are:
 - The *reward* $R$ is a [local reward function](#local-utility-estimation) (cost function in our case) which we
   handcrafted to be globally consistent with the original CityLearn's utility. 
   
-The goal here is to find a trajectory of battery's charge/discharge actions with minimal cost given a set of world 
-predictions and then execute the single first or the first few actions from that trajectory, and then re-plan.   
+The goal here is to find a trajectory of battery charge/discharge actions with minimal cost, given a set of environment
+predictions, execute the single first or the first few actions from that trajectory, and then re-plan.
+
 
 
 #### Timescales in the problem
 
 Before delving into further details, it is important to focus on the different timescales which motivated our solution.
 
-- Each action is taken for a time frame of 1 hour, and the environment is updated every hour, so this is the immediate
+- Each action is taken for a time frame of $1$ hour, and the environment is updated every hour, so this is the immediate
   timescale to predict and act upon.
 
 - The basic operational timescale is the 24-hour cycle, which is the natural periodicity of the net consumption of the
   buildings, as  the generation peak occurs at about noon, and the consumption peak occurs during the evening.
-  This timescale is also the timescale of the electricity price, and the carbon intensity, which constitute the global
+  This timescale is also the timescale of the electricity price and the carbon intensity, which constitute the global
   utility terms.
 
-The gap between these two timescales is the main challenge of the problem, and the reason why we are to use tree-search
-algorithms to find the optimal action for each building.
+The gap between these two timescales is the problem's main challenge and is why we are to use tree-search algorithms to
+find the optimal action for each building.
 
 - The long-term timescale is the whole year, which is the timescale of the data we have to train our decision-makers on.
   
 - Intermediate timescales, like the one-month used in the load factor utility term or the long drifting time of the
-  weather are not considered in our solution, as they are not relevant to the immediate action of the agent.
+  weather, are not considered in our solution, as they are not relevant to the immediate action of the agent.
 
 ### Battery model
 
 We reverse-engineered the battery model from the `CityLearn` environment, and used it as the MDP's (Markov decision
 process) transition function for the planning as mentioned above.
 
-The key parameters of the model are the battery's capacity, the battery's charging and discharging efficiency, and the
-battery's nominal power. For a complete mathematical analysis of the battery model used in the CityLearn's environment
+The key parameters of the model are the battery's capacity, charging/ discharging efficiency, and nominal power.
+For a complete mathematical analysis of the battery model used in the CityLearn's environment,
 see [battery model analysis](/battery/BATTERY.md).
 
 
 ### Local utility estimation
 
-The utility is a function of the net consumption ( $E$ ), that is only evaluated at the end of the year (episode).
+The utility is a function of the net consumption ( $E$ ), which is only evaluated at the end of the year (episode).
 However, the predictions and actions are made at each step, so we need to estimate the utility at each step.
-For this purpose, we use an instantaneous utility estimation, which is an approximation of the utility function.
+For this purpose, we use an instantaneous utility estimation approximating the original utility.
 
-To motivate the construction of the instantaneous utility function, we first observe the utility function as a
-function of the net consumption, as it is defined in the CityLearn 2022 challenge environment.
+To motivate the construction of the instantaneous utility function, we first observe it as it's defined in the
+CityLearn 2022 challenge environment.
 
 The utility is a weighted sum of four terms: 
 
@@ -156,7 +157,7 @@ $$ U=\frac{1}{3}\frac{P}{P_{0}}+\frac{1}{3}\frac{C}{C_{0}}+\frac{1}{6}\frac{R}{R
 Where $P$ is the district's electricity price cost, $C$ is the district's $\text{CO}_2$ emission, $R$ is the ramping
 factor, and $L$ is the load factor. All explained below.
 Each term is normalized by the baseline cost (with subscript $0$ ), which is the cost of the district without battery
-usage, that is equivalent to consecutive no-op actions.
+usage, which is equivalent to consecutive no-op actions.
 
 Next, let us break down each one of the utility terms.
 
@@ -169,7 +170,7 @@ consumption of the $i$'th building at time $t$. The $\left\lfloor\cdot\right\rfl
 of the sum over all buildings (5 in the training set, but not necessarily 5 in the other sets).
 
 Note that this part of the utility can be directly decomposed into the sum of instantaneous utilities at each
-time-step (and be rewritten as a dot-product), but a global knowledge of the district's net consumption is required
+time step (and be rewritten as a dot product). Still, a global knowledge of the district's net consumption is required
 to execute the ReLU.
 
 To approximate this global trend, we use a leaky ReLU, where the slope of the negative part is a parameter, which
@@ -215,17 +216,17 @@ Once again, this approximation only applies to the local utility estimation.
 $$ L=1-\frac{1}{8760}\sum_{m=0}^{11}\frac{\Sigma_{t=0}^{729}\Sigma_{i=0}^{4}E^{\left(i,730m+t\right)}}{\max
 \left[\Sigma_{i=0}^{4}E^{\left(i,730m+t\right)}\right]_{t=0}^{729}}\text{ }. $$
 
-This is somewhat cumbersome term, but let's break it down intuitively.
+This is a somewhat cumbersome term, but let's break it down intuitively.
 In the numerator, we have a sum of the net consumption over all (730) time-steps of the month $m$, and in the
 denominator, we have the maximum (peak) value.
-This means that this part of the utility penalizes the peak consumption, and rewards the average consumption.
-To see this, we observe that wherever action we take, the sum of consumption over a whole month is more or less 
-anyway given by the load-to-generation difference, and the peak consumption is the only thing that can be changed
-by the action, due to the relatively small timescale at which the battery can get drained or charged.
+This means that this part of the utility penalizes the peak consumption and rewards the average consumption.
+To see this, we observe that wherever action we take, the sum of consumption over a whole month is, more or less,
+anyway given by the load-to-generation difference, and the peak consumption is the only thing that the action can affect
+due to the relatively small timescale at which the battery can get drained or charged.
 So, higher peak consumption means larger denominators, so lower arguments of the summation, but the leading minus
-sign in the utility function means that this is penalized to be higher utility.
+sign in the utility function means that this is penalized the peak values.
 
-To approximate this term, we take a heuristic approach, where we use the median and max consumption of the no-op
+To approximate this term, we take a heuristic approach, using the median and max consumption of the no-op
 trajectory over each month as a proxy for penalizing high (candidate peak) consumptions.
 
 $$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\text{ },\text{ },\quad
@@ -234,9 +235,9 @@ E^{\left(i,730m+t\right)}-\mu_{1/2}^{m}\right\rfloor_0}{M^m-\mu_{1/2}^m}\right)-
 
 where $\mu_{1/2}^m$ is the median of the no-op trajectory over the month $m$, and $M^m$ is its maximum, and
 $\beta_L\approx 84$ is a scaling factor set according to the training set's statistics.
-The large difference between the scaling factors stems from the different approach and also from the fact that in the
-utility the different terms are arbitrarily summed over or taken the average of. In part this scaling factor does not
-matter per se, as each utility term is normalized by the no-op utility, but it is set to match the original 
+The large difference between the scaling factors stems from the different approaches, and also from the fact that the
+different terms in the utility are arbitrarily summed over or taken the average of. In part, this scaling factor does
+not matter *per se*, as each utility term is normalized by the no-op utility, but it is set to match the original 
 utility scale. It is also varied for the global utility estimation.
 
 
@@ -255,59 +256,88 @@ and can use this information to make better decisions in the context of the grou
 
 ### Depth-selective search
 
-When using tree search algorithms the search worst-case time complexity is given by $b^d$ where $b$ is the branching
-factor (the size of the action space) and $d$ is the depth of search (the depth of the solution or goal). This
-estimation is an upper bound for the case of UCS (with constant weights) because the search is guided by a cost function
-$g(n)$. Therefore, for UCS, a better estimation for the time complexity of the algorithm would be
+When using tree search algorithms, the search worst-case time complexity reads $b^d$ where $b$ is the branching
+factor (the size of the action space) and $d$ is the depth of search (number of time steps in the assessed trajectory).
+This  estimation is an upper bound for the case of UCS (with constant weights) because the search is guided by a cost
+function $g(n)$. Therefore, for UCS, a better estimation for the time complexity of the algorithm would be
 $b^{\frac{C}{\epsilon}}$ where $C$ is the cost of the goal state and $\epsilon$ is the lowest arc cost. 
 
-Usually UCS comes to mind when having a clear definition of a goal state. Although using UCS, here, this is not the
-case, we do not look for a goal state, instead we optimize the search for reaching to the correlation depth (natural
-periodicity) of the environment which in our case is 24hrs / or 24 steps of search. 
+Usually, UCSs are considered with a clearly defined goal state. This is not the case here as, although using UCS, we do
+not look for a goal state. Instead, we optimize the search to reach the environment's correlation depth (natural
+periodicity), which is about 24 hours (24 search steps).
 
-The problem is that we are given limited time for evaluation in the context of the challenge, but even if that was not
-the case, even a moderate branching factor (i.e $b=5$), the search gets intractable
-(e.g., $5^{24}\approx 6\cdot 10^{16}$). 
+The problem is that the search gets intractable even with a moderate branching factor. For example, with $b=5$, we have
+$5^{24}\approx 6\cdot 10^{16}$ evaluations, which is impractical even regardless of the limited evaluation time set in
+the context of the challenge.
 
-Therefore, in order to reach search depth of 24hrs we use a trick we call Depth-Selective search. We a priori choose in
-which depths we are going to expand the entire action space (search properly), and in which depths we roll out using
-constant or predefined actions $a_c$ (see the figure below). 
+Therefore, to reach search depth of $24$h, we use a trick we call Depth-Selective Search (DSS). We a priori choose in
+which depths we are going to expand the entire action space (search properly), and in which depths we do rollout using
+constant or predefined actions $a_c$ (see figure below). The action space for $a_c$ is explored in the last pre-rollout step.
 
-That way, we are able to expand much deeper trees where we trade off width with depth and reach the interesting
-correlations in the environment without having to deal with the exponential barrier of large branching factors.
+This way, we can expand much deeper trees where we trade off width with depth and reach the interesting
+correlations in the environment while easing the burden of the exponential branching barrier.
 
 
 ![DSS algorithm](figures/dss.svg)
 
-> Depth Selective Search (DSS) algorithm illustration. We search only in a few selective parts of the tree (yellow)
-  while on the other parts (pink) we use rollout with constant predefined actions. 
+> Depth Selective Search (DSS) algorithm illustration. We search only in a few selective parts of the tree (yellow),
+  while on the other parts (pink), we use rollout with constant predefined actions. 
+
+### Net consumption prediction
+
+As mentioned before, the net consumption is the measure which is used to evaluate the performance of the agents, and is
+controlled by them via the battery consumption.
+Crucially, the net consumption according to which the action has to be optimized is not the one that is observed by the
+agent, but the one of the following time step.
+Furthermore, for the tree search we need to predict the net consumption for the next $24$ time steps.
+
+To this end, we implemented several alternative predictors:
+- **IDX predictor**: This is the simplest predictor, which predicts the net consumption according to the known time
+  index and building number.
+- **Dot product**: Generates prediction by finding the maximal dot-product overlap of the past $24$h consumption and
+  training data. It is a simple and fast method, but it does not generalize very well.
+- **Multi-Layer Perceptron**: This is a Multi-Layer Perceptron (MLP) network trained to predict the net
+  consumption from the last $24$h history. Its architecture is Time-delayed Neural Net (TDNN), which means that it takes
+  the whole history as input, and the output is the prediction for the next 24 time steps at once, without any time
+  roll. It features three hidden layers with $128$, $16384$, and $64$ neurons,
+  and a ReLU activation function. The network is trained with the Adam optimizer, and the loss function is the mean
+  squared error (MSE), with exponential weighting for improving the accuracy at the initial times out of the 24 hours
+  output. Given the small dataset, its prediction is not very accurate, but it is a great improvement over the dot
+  product.
+  
+
 
 
 ## Alternative Rule-based solution
 Alternatively, when not using search, we use a set of rules that defines the next move for each building independently
 (locally), based on the next hour prediction.
 The rules were defined to "flatten" the net consumption curve (closing the temporal gap / phase-shift between 
-peak production and peak demand), and by this to minimize the utility:
-- If the next hour production is higher than the consumption, the battery is charged by the extra amount.
-- If the next hour consumption is higher than the production, the battery is discharged by the missing amount.
+peak production and peak demand) and, by this, to minimize the utility:
+- If the next hour's production is higher than the consumption, the battery is charged by the extra amount.
+- If the next hour's consumption exceeds production, the battery is discharged by the missing amount.
+
+The action is also cropped by the available energy (/room) in the battery, and by its nominal power, which limits the
+maximal charge/discharge per hour.
 
 On top of that, the rules treat the cases where the battery is fully charged or fully discharged.
-We also penalize the battery charge, in hours when the carbon intensity is below its median,
+We also penalize the battery charge in hours when the carbon intensity is below its median,
 as in such times the utility for using the grid power is relatively lower.
 
 The rules are defined in two cases, for a single building and for a group of buildings.
-The essence is the same, just that for the later case, the input is the net consumption of the group.
+The essence is the same, just that in the latter case, the input is the net consumption of the group.
 
-Additional tuning was done to the rules, to minimize the utility for the training set, and the parameters for the
+Additional tuning was done to the rules, to minimize the utility of the training set, and the parameters for the
 single and group rules were found to be different.
-An important hyperparameter is thus the number of buildings which use the group rules.
 
-<figure>
-<img src="/"  width="900" 
-alt="."/>
-</figure>
+An important hyperparameter is thus the number of buildings that use the group rules. Namely, shall only the last
+building (which is fully knowledgeable) make its decisions based on the district's total net consumption, or shall
+more agents (from the end) take altruistic actions?
+
+![rule-based solution](figures/rb.svg)
 
 > Rule-based solution for a single building
+
+
 
 ## Tunable parameters
 
@@ -316,9 +346,10 @@ Controller parameters:
 - `prediction_method`: The method to use for predicting the net consumption of each building. Choose from:
   - `IDX`: Use the time and building indices for perfect prediction over the training set.
   - `CSV`: Load the predictions from a CSV file.
-  - `DOT`: Generate prediction by finding the maximal dot-product overlap of the past 24hr consumption and training data.
-  - `MLP`: Predict with Multi-Layer Perceptron, using 24h history of net consumption and global variables.
-- `agent_type`: The type of decision-maker to use for all agents except the last one (N-1 agents). Choose from:
+  - `DOT`: Generate prediction by finding the maximal dot-product overlap of the past $24$h consumption and training
+    data.
+  - `MLP`: Predict with Multi-Layer Perceptron, using $24$h history of net consumption and global variables.
+- `agent_type`: The type of decision-maker to use for all agents except the last one ($N-1$ agents). Choose from:
   - `RB-local`: Use Rule-Based agents.
   - `PLAN-local`: Use the Uniform-Cost Search algorithm.
 `last_agent_type`: The type of decision-maker to use for the last agent. Choose from:
