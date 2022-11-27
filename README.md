@@ -8,7 +8,7 @@
 
 
 <figure>
-<img src="figures/logo.jpeg"  width="200" 
+<img src="figures/logo.jpeg"  width="256" 
 alt="MAD CATS logo"/>
 </figure>
 
@@ -241,19 +241,30 @@ and can use this information to make better decisions in the context of the grou
 alt="."/>
 </figure>
 
-> Schematic illustration of the decentrelized controller architecture in use.
+> Schematic illustration of the decentralized controller architecture in use.
 
 ### Depth-selective search
 
-When using tree search algorithms the search worst-case time complexity is given by $b^d$ where $b$ is the branching factor (the size of the action space) and $d$ is the depth of search (the depth of the solution or goal). This estimation is an upper bound for the case of UCS (with constant weights) because the search is guided by a cost function $g(n)$. Therefore, for UCS, a better estimamtion for the time complexity of the algorithm would be $b^{\frac{C}{\epsilon}}$ where $C$ is the cost of the goal state and $\epsilon$ is the lowest arc cost. 
+When using tree search algorithms the search worst-case time complexity is given by $b^d$ where $b$ is the branching
+factor (the size of the action space) and $d$ is the depth of search (the depth of the solution or goal). This
+estimation is an upper bound for the case of UCS (with constant weights) because the search is guided by a cost function
+$g(n)$. Therefore, for UCS, a better estimation for the time complexity of the algorithm would be
+$b^{\frac{C}{\epsilon}}$ where $C$ is the cost of the goal state and $\epsilon$ is the lowest arc cost. 
 
-Usually UCS comes to mind when having a clear definition of a goal state. Although using UCS, here, this is not the case, we do not look for a goal state, instead we optimize the search for reaching to the correletion depth (natural periodicity) of the environment which in our case is 24hrs / or 24 steps of search. 
+Usually UCS comes to mind when having a clear definition of a goal state. Although using UCS, here, this is not the
+case, we do not look for a goal state, instead we optimize the search for reaching to the correlation depth (natural
+periodicity) of the environment which in our case is 24hrs / or 24 steps of search. 
 
-The problem is that we are given limited time for evaluation in the context of the challenge, but even if that was not the case, even a moderate branching factor (i.e $b=5$), the search gets intractable (e.g. $5^{24}\approx 6\cdot 10^{16} $). 
+The problem is that we are given limited time for evaluation in the context of the challenge, but even if that was not
+the case, even a moderate branching factor (i.e $b=5$), the search gets intractable
+(e.g., $5^{24}\approx 6\cdot 10^{16}$). 
 
-Therefore, in order to reach search depth of 24hrs we use a trick we call Depth-Selective search. We a priori choose in which depths we are going to expand the entire action space (search proparly), and in which depths we rollout using constant or predefined actions $a_c$ (see the figure below). 
+Therefore, in order to reach search depth of 24hrs we use a trick we call Depth-Selective search. We a priori choose in
+which depths we are going to expand the entire action space (search proparly), and in which depths we rollout using
+constant or predefined actions $a_c$ (see the figure below). 
 
-That way, we are able to expand much deeper trees where we trade off width with depth and reach the interesting correlations in the environment without having to deal with the exponential barrier of large branching facotrs.
+That way, we are able to expand much deeper trees where we trade off width with depth and reach the interesting
+correlations in the environment without having to deal with the exponential barrier of large branching factors.
 
 <figure>
 <img src="figures/dss.svg"  width="900" 
@@ -323,37 +334,26 @@ Planner parameters:
 We compare the performance of the different decision-makers, and first observe how they affect the net-consumption
 trajectory of an individual building and the whole district.
 
-<figure>
-<img src="figures/experiments/dm_net_consumption_comparison_building_0.png"  width="900" 
-alt="."/>
-</figure>
+![decision-makers comparison, single building](figures/experiments/dm_net_consumption_comparison_building_0.png)
 
 > A comparison of the decision-makers. The net consumption of a **single building** is shown,
   and the actions are taken by the different decision-makers.
  
  
-<figure>
-<img src="figures/experiments/dm_net_consumption_comparison_all.png"  width="900" 
-alt="."/>
-</figure>
+![decision-makers comparison, few single buildings](figures/experiments/dm_net_consumption_comparison_all.png)
 
 > A comparison of the variation in decision-makers behaviour across different buildings. The net consumption of a **single building** is shown,
   and the actions are taken by the different decision-makers for each building.
 
-<figure>
-<img src="figures/experiments/controllers_net_consumption_comparison.png"  width="900" 
-alt="."/>
-</figure>
+
+![decision-makers comparison, control configurations](figures/experiments/controllers_net_consumption_comparison.png)
 
 > A comparison of the control configurations. The net consumption of the **whole district** (sum of all building's) is shown,
   and the actions are taken by the different decision-makers in each control configuration: No-op, local Rule-Based,local RB with global RB,
   planners with (or w/o) last global RB.
 
 
-<figure>
-<img src="figures/experiments/controllers_utility_comparison.png"  width="900" 
-alt="."/>
-</figure>
+![decision-makers utilities comparison](figures/experiments/controllers_utility_comparison.png)
 
 > A comparison of the control configurations utilities: No-op, local Rule-Based,local RB with global RB,
   planners with (or w/o) last global RB. 
