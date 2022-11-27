@@ -40,13 +40,13 @@ In the CityLearn environment, every building may have a different nominal power 
 
 The function $f$ in the CityLearn environment is referred to as a *capacity-power-curve*. A *capacity-power-curve* is (usually) a measured curve that specifies the battery's power input/output limit for a specific SoC (or normalized SoC, $\frac{SoC}{C} \in [0, 1]$ which is unitless). In our case, the capacity power curve in use (for all buildings in phase 1) is the one depicted in the figure below, which contains three measured data points of **(normalized SoC, nominal-power fraction)**, and the linear interpolation between those points. 
 
-For example, given the curve below, say we would like to compute the power limit, $P_{limit}$ (charge or discharge, in our case, is the same, although in the general case, they could be different), of the battery when it is $90$ precent fully-charged ( $SoC_{norm} = \frac{SoC}{C}= 0.9$ ). We can compute it using linear interpolation between the two closest measured points (in blue) to the goal point (in red). Therefore, using the capacity-power-curve, we can compute the power and energy limits for a specific time frame of our battery for each SoC.
+For example, given the curve below, say we would like to compute the power limit, $P_{limit}$ (charge or discharge, in our case, is the same, although in the general case, they could be different), of the battery when it is $90\%$ fully-charged ( $SoC_{norm} = \frac{SoC}{C}= 0.9$ ). We can compute it using linear interpolation between the two closest measured points (in blue) to the goal point (in red). Therefore, using the capacity-power-curve, we can compute the power and energy limits for a specific time frame of our battery for each SoC.
 
 
-<figure>
-<img src="../figures/battery_capacity_power_curve.png"  width="900" 
+<p align="center">
+<img src="../figures/battery_capacity_power_curve.png"  width="480" 
 alt="battery_capacity_power_curve"/>
-</figure>
+</p>>
 
 > A capacity power curve as it is given in the CityLearn environment.
 
@@ -90,10 +90,10 @@ $$
 where $E^{(i, t)}$ is the charging energy and $P_{nominal}\Delta\tau$ is the agent's maximal input/output power of the battery. Then, for each normalized energy, the battery's efficiency, $\eta^{(i, t)}$, is determined from the battery's *power-efficiency-curve*, using linear interpolation (and in the case of the CityLearn curve also a $\sqrt{\cdot}$ operation). It is important to note that if $\frac{E^{(i, t)}}{P_{nominal}\Delta\tau}>1$, the energy is clipped such that $\frac{E^{(i, t)}}{P_{nominal}\Delta\tau}=1$, so one can not charge the battery with an amount of energy in the single time frame that is larger than the battery's nominal power.
 
 
-<figure>
-<img src="../figures/battery_power_efficiency_curve.png"  width="900" 
+<p align="center">
+<img src="../figures/battery_power_efficiency_curve.png"  width="480" 
 alt="battery_capacity_power_curve"/>
-</figure>
+</p>
 
 > A battery power efficiency curve as it is given in the CityLearn environment.
 

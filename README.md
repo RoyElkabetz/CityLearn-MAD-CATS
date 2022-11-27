@@ -1,15 +1,16 @@
 # CityLearn MAD CATS (Multi-Agent Distributed Control with Adequate Tree-Search)
 
-| :exclamation: Disclaimer: This repository is currently under development, so be patient with bugs.
-  If you find any, please let us know (the contact info is below) :exclamation: |
-| --- |
+| :exclamation: Disclaimer: This repository is currently under development, so be patient with bugs. :exclamation: |
+|------------------------------------------------------------------------------------------------------------------|
  
-| This repository contains the code for our implementation of a solution for the
- [2022 CityLearn challenge](https://github.com/intelligent-environments-lab/CityLearn). |
-| --- |
+<p align="center">
+  <img src="figures/logo.jpeg" alt="MAD CATS logo" width="256"/>
+</p>
+
+| This repository contains the code for our implementation of a solution for the  [2022 CityLearn challenge](https://github.com/intelligent-environments-lab/CityLearn). |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 
-![MAD CATS logo](figures/logo.jpeg, width=256)
 
 ## Introduction
 
