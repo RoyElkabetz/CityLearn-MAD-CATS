@@ -1,48 +1,52 @@
 # CityLearn MAD CATS (Multi-Agent Distributed Control with Adequate Tree-Search)
 
-> !!! Disclaimer: This repository is currently under development, so be patient with bugs.
-  If you find any, please let us know (the contact info is below) !!!
+| :exclamation: Disclaimer: This repository is currently under development, so be patient with bugs.
+  If you find any, please let us know (the contact info is below) :exclamation: |
+| --- |
  
-> This repository contains the code for our implementation of a solution for the
- [2022 CityLearn challenge](https://github.com/intelligent-environments-lab/CityLearn).
+| This repository contains the code for our implementation of a solution for the
+ [2022 CityLearn challenge](https://github.com/intelligent-environments-lab/CityLearn). |
+| --- |
 
 
-<figure>
-<img src="figures/logo.jpeg"  width="256" 
-alt="MAD CATS logo"/>
-</figure>
+![MAD CATS logo](figures/logo.jpeg, width=256)
 
 ## Introduction
 
-The imposed problem is a multi-agent scenario, where the agents are the buildings in the smart-grid.
-There is a battery in each building, which can be used to store energy, and a solar panel, which produces energy.
-Each building has its own energy consumption and production, and the goal is to minimize the utility,
-which is a specified measure of the net energy consumption of the buildings in the grid, 
-parts of which are global to the whole district and parts of which are local to each building.
-The action-space for each building is the amount of energy to be charged/discharged to the battery, which is continues in $[-1, 1]$, where $1$ and $-1$ stands for fully charge and fully discharge the battery respectively. The observation space is the
-energy consumption and production of the building, as well as additional global parameters such as the 
-electricity price, the $\text{CO}_2$ intensity per unit of electricity, the weather parameters, etc.
+The imposed problem is a multi-agent scenario, where the agents are the buildings in the smart grid.
+There is a battery in each building, which is used to store energy, residents' load, and a solar panel to produce
+energy. Each building has its own energy consumption and production, and the goal is to minimize the utility,
+which is a specified measure of the net energy consumption of the buildings in the grid, parts of which are global to
+the whole district, while others are local to each building.
+The action space for each agent (building) is the amount of energy to be charged/discharged to the battery, which is
+continues  in $[-1, 1]$, where $1$ and $-1$ stand for maximally charging and maximally consuming (discharging) the
+battery, respectively.
+The observation space is the energy consumption and production of the building, as well as additional global parameters
+such as the electricity price, the $\text{CO}_2$ intensity per unit of electricity, the weather parameters, etc.
 
 The crux of the problem is that:
-- Each building's actions affect its future net consumption, so the net consumption of each building has to be predicted.
-- The utility involves global parts, so the optimal action for one building depends on the actions of the other buildings.
-- The natural periodicity of the net consumption is 24 hours, which for planning using tree-search 
-  algorithms even with a moderate branching factors (i.e. 5) is intractable (e.g., $5^{24}=6\cdot 10^{16}$ ).
+- Each building's actions affect its *future* net consumption, so the net consumption of each building has to be
+  predicted.
+- The utility involves global parts, so the optimal action for one building depends on the actions of the other
+  buildings.
+- The natural periodicity of the net consumption is 24 hours, which for vanilla planning using tree-search 
+  algorithms, even with moderate branching factors, is intractable (e.g., for $5$, one gets
+  $5^{24}=6\cdot 10^{16}$ nodes).
 
 
 ## Solution
 
-The $i$'th building's net consumption at time $t$ is made out of three key elements:
+The net consumption of the $i$'th building at time $t$ is composed of three key elements:
 
 $$E^{(i,t)} = E_\text{Load}^{(i,t)} + E_\text{Solar}^{(i,t)} + E_\text{Storage}^{(i,t)}$$
 
 The non-shiftable load $E_\text{Load}^{(i,t)}$ and the solar generation $E_\text{Solar}^{(i,t)}$ terms are given from
 the environment.
-The storage $E_\text{Storage}^{(i,t)}$ is the action of the agent, which is the amount of energy to be
+The storage $E_\text{Storage}^{(i,t)}$ is due to the agent's action, which is the amount of energy to be
 charged/discharged from the battery.
 
 We can therefore factorize the problem into two sub-environments, one for the agent and one for the "world", where the
-actions only affect the agent's environment, and the time-evolution is dictated by the world's environment.
+actions only affect the agent's environment, and the world's environment dictates the time-evolution.
 
 The actions affect the net electricity consumption via the equation above, and accordingly affect the utility function.
 
@@ -51,25 +55,27 @@ The actions affect the net electricity consumption via the equation above, and a
 We implement and use:
 
 - Uniform-Cost Search algorithm (a type of tree-search), which is a modified 
-[Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm), to find the next optimal action for each building.
-- Various predictors to predict the net consumption of each building for the next time frame (1 or 24 hrs)
+[Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm), to find the next optimal action for each
+  building.
+- Various predictors to predict the net consumption of each building for the next time frame ($1$ or $24$h)
 - Battery model to translate action to change in battery's state.
-- Local (instantaneous) estimation of the utility function to guide the search.
 - Depth-selective search, where the search is performed only on specified levels of the tree, and the rest is 
   bridged by steps among which the action is uniformly divided.
-- Some utility terms are global. Namely, they are effected by the actions of all the buildings in the district.
-  We use decentralized controllers, where each building is taking actions to optimize local reward function.
+- Instantaneous approximation of the total utility function that is formally calculated only after complete episode
+  (year). Moreover, some of the utility terms are global (affected by the actions of all the buildings in the district).
+  However, we use decentralized controllers, where each building takes actions to optimize the local reward function.
   Therefore, a local estimation of the global utility is established and used to guide the search for each agent.
-- Residual corrections between the sum of local trajectories and the global optimal behavior are taken care of by the last agent. 
-  This is done by a simple heuristic, where it optimizes a global utility with the sum of net consumptions (modified with the planned actions). 
+- Residual corrections between the sum of local trajectories and the optimal global behavior are taken care of by the
+  last agent. This is done by a simple heuristic, which optimizes a global utility with the sum of net consumptions
+  (modified with the planned actions). 
 
 ##### Etymology
 Let's break down the name of the repository:
 MAD CATS (Multi-Agent Distributed Control with Adequate Tree-Search)
 - `CityLearn` is the name of the challenge, referring to the fact that there is a collective (city) learning goal.
-- `Multi-Agent` is the type of problem, referring to the same thing basically.
+- `Multi-Agent` is the type of problem that basically refers to the same thing.
 - `Distributed Control` refers to the fact that the actions are performed in a distributed manner, 
-   i.e., each agent has its own policy and own search tree which is independent of others.
+   i.e., each agent has its own policy and search tree, which is independent of others.
 - `Adequate Tree-Search` refers to the uniform-cost tree-search algorithm we use to solve the problem,
    with its extra spices that contribute efficiency, e.g., depth-selective search and non-uniform action space
    discretization, and to the fact that it is based on a battery model we employed, and use mixed decision-makers for
@@ -78,23 +84,27 @@ MAD CATS (Multi-Agent Distributed Control with Adequate Tree-Search)
 
 ### Formulating the Battery problem as an MDP
 
-In order to use search algorithms such as Uniform-Cost-Search (UCS) we need to have a model of the world as a 
-Markov Decision Process (MDP), that we can use for offline planing. The given CityLearn environment, as we already
-mentioned, can be factored into two parts:
-- The **Grid** model, which consists of the weather parameters (e.g. temperature, solar irradiance, etc.), 
+To use search algorithms such as Uniform-Cost-Search (UCS), we need to have a model of the world as a Markov Decision
+Process (MDP) that we can use for offline planning. The given CityLearn environment, as previously mentioned, can be
+factored into two parts:
+- The **Environment** model, which consists of the weather parameters (e.g. temperature, solar irradiance, etc.), 
   the grid parameters (e.g. electricity price, carbon intensity, etc.) and the buildings' electricity measured data 
   (e.g. non-shiftable load and solar generation).
-- The **Battery** model, which consists of the battery's State of Charge (SoC), Capacity, Nominal-Power and so on.
-Therefore, we formulate the model of the battery as an MDP and together with a predictor that predicts the future 
-  behaviour of the grid and each building's electricity consumption and production, we use UCS to find the best plan of 
-  battery actions from each state for each building.
+- The **Battery** model, which consists of the battery's State of Charge (SoC), Capacity, Nominal-Power, and so on.
+
+Therefore, we formulate the model of the battery as an MDP, and together with a predictor that predicts the future 
+behavior of the grid and each building's electricity consumption and production, we use UCS to find the best plan of 
+battery actions from each state for each building.
   
-The battery MDP $\langle S, A, T, R, \gamma\rangle$ we use is the following:
-- $S$ is composed of the battery state such that at time step $t$, $s_t  = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$.
-- $A$ is defined as some discritization of the continuous action space $[-1, 1]$, i.e. $[-1.0, -0.5, -0.1, 0, 0.1, 0.5, 1.0]$.
-- $T$ is given by the physical model of the battery, taken from the CityLearn environment.
-- $R$ is a local reward function (cost function in our case) which was handcrafted in a way that would be globally consistent with the CityLearn's 
-  utility (explained in detail later). 
+The battery MDP $\langle S, A, T, R, \gamma\rangle$ parameter swe use are:
+- The *state*  $S$ is composed of the battery state (SoC derivative, Soc, and capacity) at time step $t$,
+  $s_t  = (SoC_{t} - SoC_{t-1}, SoC_{t}, Capacity_{t})$.
+- The *action* $A$ is defined as some discretization of the continuous action space $[-1, 1]$, e.g., 
+  $[-1.0, -0.5, -0.1, 0, 0.1, 0.5, 1.0]$.
+- The *transition* $T$ is given by the [physical model of the battery](#battery model), reverse-engineered from the
+  CityLearn environment.
+- The *reward* $R$ is a [local reward function](#local utility estimation) (cost function in our case) which we
+  handcrafted to be globally consistent with the original CityLearn's utility. 
   
 The goal here is to find a trajectory of battery's charge/discharge actions with minimal cost given a set of world 
 predictions and then execute the single first or the first few actions from that trajectory, and then re-plan.   
@@ -112,7 +122,8 @@ Before delving into further details, it is important to focus on the different t
   This timescale is also the timescale of the electricity price, and the carbon intensity, which constitute the global
   utility terms.
 
-The gap between these two timescales is the main challenge of the problem, and the reason why we are to use tree-search algorithms to find the optimal action for each building.
+The gap between these two timescales is the main challenge of the problem, and the reason why we are to use tree-search
+algorithms to find the optimal action for each building.
 
 - The long-term timescale is the whole year, which is the timescale of the data we have to train our decision-makers on.
   
@@ -121,13 +132,12 @@ The gap between these two timescales is the main challenge of the problem, and t
 
 ### Battery model
 
-We reverse-engineered the battery model from the `CityLearn` environment, and used it as the MDP's (Markov decision process)
-transition function for the planning as mentioned above.
+We reverse-engineered the battery model from the `CityLearn` environment, and used it as the MDP's (Markov decision
+process) transition function for the planning as mentioned above.
 
-The key parameters of the model are the battery's capacity, the battery's charging and discharging efficiency, and the battery's nominal power. For a complete mathematical analysis of the battery model used in the CityLearn's environment see [battery model analysis](/battery/BATTERY.md).
-
-
-
+The key parameters of the model are the battery's capacity, the battery's charging and discharging efficiency, and the
+battery's nominal power. For a complete mathematical analysis of the battery model used in the CityLearn's environment
+see [battery model analysis](/battery/BATTERY.md).
 
 
 ### Local utility estimation
@@ -143,10 +153,10 @@ The utility is a weighted sum of four terms:
 
 $$ U=\frac{1}{3}\frac{P}{P_{0}}+\frac{1}{3}\frac{C}{C_{0}}+\frac{1}{6}\frac{R}{R_{0}}+\frac{1}{6}\frac{L}{L_{0}}, $$
 
-Where $P$ is the district's electricity price cost, $C$ is the district's $\text{CO}_2$ emission, $R$ is the ramping factor,
-and $L$ is the load factor. All explained below.
-Each term is normalized by the baseline cost (with subscript $0$ ), which is the cost of the district without battery usage,
-that is equivalent to consecutive no-op actions.
+Where $P$ is the district's electricity price cost, $C$ is the district's $\text{CO}_2$ emission, $R$ is the ramping
+factor, and $L$ is the load factor. All explained below.
+Each term is normalized by the baseline cost (with subscript $0$ ), which is the cost of the district without battery
+usage, that is equivalent to consecutive no-op actions.
 
 Next, let us break down each one of the utility terms.
 
@@ -165,8 +175,9 @@ to execute the ReLU.
 To approximate this global trend, we use a leaky ReLU, where the slope of the negative part is a parameter, which
 we set to $\beta_P\approx 0.16$ according to the training set's statistics (without battery usage).
 
-$$ P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\text{ },\quad\text{ with }\quad\tilde{P}^{\left(i,t\right)}
-=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor_{0}+\beta_{P}\left\lceil E^{(i,t)}\right\rceil _{0}\right)\text{ }, $$
+$$ P\approx\sum_{t=0}^{8759}\sum_{t=0}^{4}P^{\left(i,t\right)}\text{ },\quad\text{ with }\quad
+\tilde{P}^{\left(i,t\right)}=\alpha_{P}(t)\left(\left\lfloor E^{(i,t)}\right\rfloor_{0}+\beta_{P}\left\lceil
+E^{(i,t)}\right\rceil _{0}\right)\text{ }, $$
 
 where $\left\lceil\cdot\right\rceil_{0}$ denotes the negative part.
 
@@ -175,8 +186,8 @@ This approximation only applies to the local utility estimation.
 
 #### Carbon emission:
 
-$$ C=\sum_{t=0}^{8759}\sum_{t=0}^{4}\tilde{C}^{\left(i,t\right)}\text{ },\text{ },\quad\text{ with }\quad \tilde{C}^{\left(i,t\right)}
-=\alpha_{C}(t)\left\lfloor E^{(i,t)}\right\rfloor _{0}\text{ }. $$
+$$ C=\sum_{t=0}^{8759}\sum_{t=0}^{4}\tilde{C}^{\left(i,t\right)}\text{ },\text{ },\quad\text{ with }\quad
+\tilde{C}^{\left(i,t\right)}=\alpha_{C}(t)\left\lfloor E^{(i,t)}\right\rfloor _{0}\text{ }. $$
 
 Here $\alpha_{C}(t)$ is the given carbon intensity at time $t$, and we readily decomposed this term into the sum of
 local and instantaneous utilities.
@@ -205,8 +216,8 @@ $$ L=1-\frac{1}{8760}\sum_{m=0}^{11}\frac{\Sigma_{t=0}^{729}\Sigma_{i=0}^{4}E^{\
 \left[\Sigma_{i=0}^{4}E^{\left(i,730m+t\right)}\right]_{t=0}^{729}}\text{ }. $$
 
 This is somewhat cumbersome term, but let's break it down intuitively.
-In the numerator, we have a sum of the net consumption over all (730) time-steps of the month $m$, and in the denominator,
-we have the maximum (peak) value.
+In the numerator, we have a sum of the net consumption over all (730) time-steps of the month $m$, and in the
+denominator, we have the maximum (peak) value.
 This means that this part of the utility penalizes the peak consumption, and rewards the average consumption.
 To see this, we observe that wherever action we take, the sum of consumption over a whole month is more or less 
 anyway given by the load-to-generation difference, and the peak consumption is the only thing that can be changed
@@ -217,9 +228,9 @@ sign in the utility function means that this is penalized to be higher utility.
 To approximate this term, we take a heuristic approach, where we use the median and max consumption of the no-op
 trajectory over each month as a proxy for penalizing high (candidate peak) consumptions.
 
-$$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\text{ },\text{ },\quad\text{ with }\quad
-\tilde{L}^{\left(i,t,m\right)}=\beta_{L}\left[\exp\left(\frac{\left\lfloor E^{\left(i,730m+t\right)}-\mu_{1/2}^{m}
-\right\rfloor_0}{M^m-\mu_{1/2}^m}\right)-1\right]\text{ }, $$
+$$ L\approx\sum_{m=0}^{11}\sum_{t=0}^{729}\sum_{t=0}^{4}\tilde{L}^{\left(i,t,m\right)}\text{ },\text{ },\quad
+\text{ with }\quad \tilde{L}^{\left(i,t,m\right)}=\beta_{L}\left[\exp\left(\frac{\left\lfloor
+E^{\left(i,730m+t\right)}-\mu_{1/2}^{m}\right\rfloor_0}{M^m-\mu_{1/2}^m}\right)-1\right]\text{ }, $$
 
 where $\mu_{1/2}^m$ is the median of the no-op trajectory over the month $m$, and $M^m$ is its maximum, and
 $\beta_L\approx 84$ is a scaling factor set according to the training set's statistics.
@@ -236,12 +247,11 @@ We use a decentralized control setting for all agents, where each building has i
 The last agent is knowledgeable about the rest of the agents (net consumptions modified by the planned actions),
 and can use this information to make better decisions in the context of the group.
 
-<figure>
-<img src="figures/controller.svg"  width="900" 
-alt="."/>
-</figure>
+
+![decentralized controller architecture](figures/controller.svg)
 
 > Schematic illustration of the decentralized controller architecture in use.
+
 
 ### Depth-selective search
 
@@ -260,23 +270,22 @@ the case, even a moderate branching factor (i.e $b=5$), the search gets intracta
 (e.g., $5^{24}\approx 6\cdot 10^{16}$). 
 
 Therefore, in order to reach search depth of 24hrs we use a trick we call Depth-Selective search. We a priori choose in
-which depths we are going to expand the entire action space (search proparly), and in which depths we rollout using
+which depths we are going to expand the entire action space (search properly), and in which depths we roll out using
 constant or predefined actions $a_c$ (see the figure below). 
 
 That way, we are able to expand much deeper trees where we trade off width with depth and reach the interesting
 correlations in the environment without having to deal with the exponential barrier of large branching factors.
 
-<figure>
-<img src="figures/dss.svg"  width="900" 
-alt="."/>
-</figure>
 
-> Depth Selective Search (DSS) algorithm illustration. We search only in a few selective parts of the tree (yellow) while on the other parts (pink) we use rollout with constant predefined actions. 
+![DSS algorithm](figures/dss.svg)
 
+> Depth Selective Search (DSS) algorithm illustration. We search only in a few selective parts of the tree (yellow)
+  while on the other parts (pink) we use rollout with constant predefined actions. 
 
 
 ## Alternative Rule-based solution
-Alternatively, when not using search, we use a set of rules that defines the next move for each building independently (locally), based on the next hour prediction.
+Alternatively, when not using search, we use a set of rules that defines the next move for each building independently
+(locally), based on the next hour prediction.
 The rules were defined to "flatten" the net consumption curve (closing the temporal gap / phase-shift between 
 peak production and peak demand), and by this to minimize the utility:
 - If the next hour production is higher than the consumption, the battery is charged by the extra amount.
@@ -314,7 +323,8 @@ Controller parameters:
   - `PLAN-local`: Use the Uniform-Cost Search algorithm.
 `last_agent_type`: The type of decision-maker to use for the last agent. Choose from:
   - `RB-local`: Use Rule-Based agent -- *egoistic* decision-maker using only individual net consumption.
-  - `RB-global`: Use Rule-Based agent, but with global net consumption -- *altruistic* decision-maker using only collective district's net consumption.
+  - `RB-global`: Use Rule-Based agent, but with global net consumption -- *altruistic* decision-maker using only
+   collective district's net consumption.
   - `PLAN-local`: Use the Uniform-Cost Search algorithm.
   - `PLAN-global`: Use the Uniform-Cost Search algorithm, but with global net consumption. [not implemented]
 
@@ -322,7 +332,8 @@ Planner parameters:
 - `search_depths`: list of depths to search to. The gaps are filled with constant action of the last searched depth.
 - `max_serach_time`: time to terminate search if not finished, and keep to the best trajectory found by this time.
 - `d_action`: the action-space is discrete, so this is the step-size of the action-space.
-- `acion_space_list`: list of actions to search over. If `None`, then the action-space is discretized to `d_action` steps.
+- `acion_space_list`: list of actions to search over. If `None`, then the action-space is discretized to `d_action`
+  steps.
 - `utility_weighting`: re-weighting of the different terms in the local utility.
 
 
@@ -342,15 +353,15 @@ trajectory of an individual building and the whole district.
  
 ![decision-makers comparison, few single buildings](figures/experiments/dm_net_consumption_comparison_all.png)
 
-> A comparison of the variation in decision-makers behaviour across different buildings. The net consumption of a **single building** is shown,
-  and the actions are taken by the different decision-makers for each building.
+> A comparison of the variation in decision-makers behaviour across different buildings. The net consumption of a
+  **single building** is shown, and the actions are taken by the different decision-makers for each building.
 
 
 ![decision-makers comparison, control configurations](figures/experiments/controllers_net_consumption_comparison.png)
 
-> A comparison of the control configurations. The net consumption of the **whole district** (sum of all building's) is shown,
-  and the actions are taken by the different decision-makers in each control configuration: No-op, local Rule-Based,local RB with global RB,
-  planners with (or w/o) last global RB.
+> A comparison of the control configurations. The net consumption of the **whole district** (sum of all building's) is
+  shown, and the actions are taken by the different decision-makers in each control configuration: No-op, local
+  Rule-Based,local RB with global RB, planners with (or w/o) last global RB.
 
 
 ![decision-makers utilities comparison](figures/experiments/controllers_utility_comparison.png)
@@ -362,9 +373,9 @@ trajectory of an individual building and the whole district.
 Utilities for these examples:
 | Decision-maker | Utility (total) | Price cost | Emission cost | Grid cost |
 |----------------|-----------------|------------|---------------|-----------|
-| No-op          | 1.000           | 1.000      | 1.000         | 1.000     |
-| Local RB       | 0.7845           | 0.721       | 0.7764         | 0.8561     |
-| Local RB + global RB | 0.7822           | 0.6858 |  0.8174 | 0.8436   |
+| No-op          | 1.000           | 1.000      | 1.000         | 1.000      |
+| Local RB       | 0.7845           | 0.721       | 0.7764         | 0.8561    |
+| Local RB + global RB | 0.7822           | 0.6858 |  0.8174 | 0.8436    |
 | Local RB + global RB + random | 0.7939           | 0.685 | 0.8248  | 0.8718  |
 | Local planner  | 0.855           | 0.7708 | 0.8958 | 0.8985     |
 | Local planner + global RB | 0.846           | 0.7405 | 0.9391 | 0.8584    |
@@ -383,7 +394,7 @@ Utilities for these examples:
 
 ### Rule-based
 
-w/o agents ramdomization.
+w/o agents randomization.
 
 | last_agent_type | last building's (4) net consumption | whole district net consumption |
 |-----------------|-------------------------------------|--------------------------------|
@@ -428,7 +439,8 @@ TODO: complete!
 
 
 ## References
-- **CityLearn challenge**. [https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge](https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge)
+- **CityLearn challenge**. [https://www.aicrowd.com/challenges
+  /neurips-2022-citylearn-challenge](https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge)
 
 
 ## Contact
