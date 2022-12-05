@@ -1,46 +1,78 @@
 ## The Storage Device Model
 
-Understanding the model of the buildings' storage devices used in the environment is very important. This model will be used in our agent's decision-making process (known as "domain knowledge") instead of using model-free Reinforcement Learning framework, which would be problematic in the current environment due to the lack of data. Most of the storage-device model parameters are not part of the input data (e.g., capacity and nominal power). However, they could easily be computed following a simple action protocol (like by taking extreme actions, $a=1$) for a few time steps (you can think of this as informative exploration). 
+Understanding the model of the buildings' storage devices used in the environment is very important.
+This model will be used in our agent's decision-making process (known as "domain knowledge") instead of using the 
+model-free Reinforcement Learning framework, which would be problematic in the current environment due to the lack of
+data.
 
-In this section, we describe the storage-device (battery) model as defined in the CityLearn 2022 environment and how it relates to the agents' actions.
+In this section, we describe the storage-device (battery) model as defined in the CityLearn 2022 environment and how it
+relates to the agents' actions.
 
+Most of the storage-device model parameters are not part of the input data (e.g., capacity and nominal power).
+However, they could easily be computed following a simple action protocol (like taking extreme actions, $a=1$) for a
+few time steps (which can be thought of as an informative exploration). 
 ### Battery model
 
-The authors in [1] snd [2] model a storage device's State-of-charge (SoC) in a continuous time domain using the next equation
+The authors in Ref. [1] and [2] model a storage device's State-of-charge (SoC) in a continuous time domain using the 
+following equation:
 
 $$
-\phi(t) = \phi(0) + \frac{1}{C}\int_{0}^{t} P_{Storage}(\tau)d\tau
+\phi(t) = \phi(0) + \frac{1}{C}\int_{0}^{t} P_{Storage}(\tau)d\tau\,,
 $$
 
-where $\phi(0)$ and $\phi(t)$ are the initial and at time $t$ SoC and are bounded to the interval $[0, 1]$. $C$ is the device's capacity (in units of energy, i.e., kWh), and $P_{Storage}(\tau)$ is the charge/discharge power (in units of power, i.e., kW). Notice that in the equation above, the SoC is unitless (because $d\tau$ has units of $\frac{energy}{power}=time$, i.e., hour $[h]$). It is important to note that, depending on the model, SoC may have units of energy or be unitless. The difference between the two cases is a multiplicative capacity factor. 
+where $\phi(t)$ is the SoC at time $t$ which is bounded to the interval $[0, 1]$,
+$C$ is the device's capacity (in units of energy, i.e., kWh), and $P_{Storage}(\tau)$ is the charge/discharge power
+(in units of power, i.e., kW).
+Note that in the equation above, the SoC is unitless (because $d\tau$ has units of $\frac{energy}{power}=time$, i.e., hour $[h]$).
+In general, depending on the model, SoC may have units of energy or be unitless. The difference between the two cases is a multiplicative capacity factor. 
 
-In the case of discrete-time, like in the CityLearn challenge (with $1$ hour time frames), the SoC equation needs to be refactored as follows,
+In the discrete time case, like in the CityLearn challenge (with fixed $1$ hour time steps), the SoC equation can be refactored to:
 
 $$
-\phi^{(i,t)} = \phi^{(i,0)} + \frac{1}{C^{(i, t)}}\sum_{\tau = 0}^{t} P^{(i, \tau)}_{Storage}\Delta \tau
+\phi^{(i,t)} = \phi^{(i,0)} + \frac{1}{C^{(i, t)}}\sum_{\tau = 0}^{t} P^{(i, \tau)}_{Storage}\Delta \tau\,.
 $$
 
-where the $(i, t)$ index pair correspond to the $i^{th}$ building at time step $t$ and $\Delta\tau=1[h]$. Also, we introduce a time-dependent capacity (the capacity of real batteries degrades in time/usage, so it needs to be time-dependent, and this is also the case in the CityLearn environment). An explanation about the capacity of a battery can be found in the next link [battery-capacity](https://www.pveducation.org/pvcdrom/battery-characteristics/battery-capacity).
+Here we also introduced building (agents) indexing, such that the $(i,t)$ index pair corresponds to the $i^{th}$ building at time step $t$. 
+In our case $\Delta\tau=1[h]$. 
+Furthermore, the capacity of real batteries degrades with time/usage, so its parameter $C$ is required to be time-dependent, 
+which is also the case in the CityLearn environment.
+An explanation about the capacity degradation of a battery can be found [in this link](https://www.pveducation.org/pvcdrom/battery-characteristics/battery-capacity).
+
 
 ### Charging limiting factors
 
-A battery (storage device) can be charged or discharged with energy (in units of kWh), which is given as a function of the $i^{th}$ agent's action at time step $t$, $a^{(i, t)}$, and can be written as follows
+A battery (storage device) can be charged or discharged with energy (in units of kWh),
+which is given as a function of the $i^{th}$ agent's action at time step $t$, $a^{(i, t)}$, and can be written as 
 
 $$
     E^{(i,t)} = 
     \begin{cases}
     \min{\left[a^{(i, t)}\cdot C^{(i,t)}, f(\phi^{(i, t)})\right]} & if\quad  a^{(i, t)}\geq 0\\
-    \max{\left[a^{(i, t)}\cdot C^{(i, t)}, -f(\phi^{(i, t)})\right]} & otherwise
-    \end{cases}
+    \max{\left[a^{(i, t)}\cdot C^{(i, t)}, -f(\phi^{(i, t)})\right]} & \text{otherwise}
+    \end{cases}\,,
 $$
 
-where $f$ is a function that limits the amount of energy being charged (discharged) to (from) the battery in a specified time frame, given the battery's nominal-power $P_{nominal}$, current SoC $\phi^{(i, t)}$, and capacity $C^{(i, t)}$. In other words, $f$ determines the energy limit one can charge (discharge) to (from) the battery at each state of the battery. 
+where $f$ is a function that limits the amount of energy being charged (discharged) to (from) the battery in a specified time step,
+given the battery's nominal-power $P_{nominal}$, current SoC $\phi^{(i, t)}$, and capacity $C^{(i, t)}$.
+In other words, $f$ determines the energy limit one can charge (discharge) to (from) the battery at each state of the battery. 
 
-In the CityLearn environment, every building may have a different nominal power for its battery (and also other battery's physical parameters), while all the buildings share the same $f$ (it is the current default setting of the environment which could change in the future), which sets the limit on the fraction of nominal power charge/discharge at each time step. 
+In the CityLearn environment, every building may have a different nominal power for its battery (and also other battery's physical parameters),
+while all the buildings share the same $f$, which sets the limit on the fraction of nominal power charge/discharge at each time step
+(currently it is the default setting of the environment which could be changed in the future).
 
-The function $f$ in the CityLearn environment is referred to as a *capacity-power-curve*. A *capacity-power-curve* is (usually) a measured curve that specifies the battery's power input/output limit for a specific SoC (or normalized SoC, $\frac{SoC}{C} \in [0, 1]$ which is unitless). In our case, the capacity power curve in use (for all buildings in phase 1) is the one depicted in the figure below, which contains three measured data points of **(normalized SoC, nominal-power fraction)**, and the linear interpolation between those points. 
+The function $f$ in the CityLearn environment is referred to as a `capacity-power-curve`.
+A capacity-power-curve is (usually) a measured curve that specifies the battery's power input/output limit for a specific SoC
+(or normalized SoC, $\frac{SoC}{C} \in [0, 1]$ which is unitless).
+In our case, the capacity power curve in use (for all buildings in phase 1) is the one depicted in the figure below,
+which contains three measured data points of `(normalized SoC, nominal-power fraction)`, and a linear interpolation between those points. 
 
-For example, given the curve below, say we would like to compute the power limit, $P_{limit}$ (charge or discharge, in our case, is the same, although in the general case, they could be different), of the battery when it is $90\%$ fully-charged ( $SoC_{norm} = \frac{SoC}{C}= 0.9$ ). We can compute it using linear interpolation between the two closest measured points (in blue) to the goal point (in red). Therefore, using the capacity-power-curve, we can compute the power and energy limits for a specific time frame of our battery for each SoC.
+For example, given the curve below, say we would like to compute the power limit, $P_{limit}$
+(charge or discharge, in our case, is the same, although in the general case, they could be different),
+of the battery when it is $90\%$ fully-charged ( $SoC_{norm} = \frac{SoC}{C}= 0.9$ ).
+We can compute it using linear interpolation between the two closest measured points (in blue)to the goal point (in red).
+Therefore, using the capacity-power-curve, we can compute the power and energy limits for a specific time step of our battery for each SoC.
+Note that the [capacity degradation](#capacity-degradation) and the [charging/discharging efficiency](#charge/discharge-efficiency)
+are still need to be considered in the energy limit equation.
 
 
 <p align="center">
