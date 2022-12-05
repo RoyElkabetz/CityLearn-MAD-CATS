@@ -71,8 +71,8 @@ For example, given the curve below, say we would like to compute the power limit
 of the battery when it is $90\%$ fully-charged ( $SoC_{norm} = \frac{SoC}{C}= 0.9$ ).
 We can compute it using linear interpolation between the two closest measured points (in blue)to the goal point (in red).
 Therefore, using the capacity-power-curve, we can compute the power and energy limits for a specific time step of our battery for each SoC.
-Note that the [capacity degradation](#capacity-degradation) and the [charging/discharging efficiency](#charge/discharge-efficiency)
-are still need to be considered in the energy limit equation.
+Note that the [capacity degradation](#capacity-degradation) and the [charging/discharging efficiency](#charge-discharge-efficiency)
+are still need to be considered to evaluate the actual energy transfer limit.
 
 
 <p align="center">
