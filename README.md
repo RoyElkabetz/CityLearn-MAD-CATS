@@ -334,7 +334,7 @@ An important hyperparameter is thus the number of buildings that use the group r
 building (which is fully knowledgeable) make its decisions based on the district's total net consumption, or shall
 more agents (from the end) take altruistic actions?
 
-![rule-based solution](figures/rb.svg)
+![rule-based solution](figures/rb_agent_diagram.svg)
 
 > Rule-based solution for a single building
 
@@ -482,14 +482,14 @@ Synergizing imperfect planners with last RB agent is the best.
 
 
 ## Prerequisites
-TODO: update requirements.txt or remove it.
-Maybe it will also work without these, and it's enough to refer to the requirements.txt in the main repo.
+You can create the environment using the requirements.txt file or the environment.yml file, both should work fine.  
 
 | Library      | Version |
 |--------------|---------|
 | `python`     | 3.9.13  |
 | `matplotlib` | 3.5.2   |
 | `tqdm`       | 4.64.1  |
+| `torch`      | 1.12.1  |
 
 **plus** the CityLearn package itself, with its dependencies.
 Note to get the 1.3.6 version, from:
@@ -500,15 +500,30 @@ Note to get the 1.3.6 version, from:
 
 TODO: complete!
 
-| File/ folder name               | Purpose                                                           |
+| File/ folder name   <div style="width:250px"></div>| Purpose                                                           |
 |---------------------------------|-------------------------------------------------------------------|
-| `main.py`                       | main script for locally evaluating the model on the training data |
+| `main.py`                      | main script for locally evaluating the model on the training data |
 | `utils.py`                      | utility functions for the main script                             |
-| `evaluation_experiment.py`      | script for                                                        |
-| `agents`                        | folder for the agents                                             |
-| ├── `battery_model_rb_agent.py` |                                                                   |
-| └── `controller.py`             |                                                                   |
-
+| `agents`                        | folder for the agents' modules                                           |
+| ├── `battery_model_rb_agent.py` | rule-based agent with a battery model                              |
+| ├── `brute_force_day_agent.py`  | planner agent combined with a rule-based agent                              |
+| └── `controller.py`             | the multi-agent control class             |
+| `battery`                        | folder for the battery model modules                                           |
+| ├── `BATTERY.md` | explanation of the battery model |
+| ├── `battery_model.py`  | battery model class |
+| ├── `env_battery_model.py`  | battery model class as it is written in the CityLearn environment |
+| └── `tree_search.py`  | the tree search algorithm (UCS) implementation |
+| `data`                        | the CityLearn phase 1 data and the data needed for MLP training and prediction                                           |
+| `figures`                        | figures for README files                                           |
+| `net_consumption_mlp`  | folder for the MLP implementation                                           |
+| `notebooks`  | folder for notebooks collection |
+| `predictors`  | folder for predictor modules |
+| └── `predictor_wrapper.py`  | a wrapper for the different predictors being used  |
+| `rewards`  | folder for reward and utility modules |
+| ├── `agent_inst_u.py`  | a local instantaneous utility function approximation module  |
+| ├── `agent_inst_u_with_last.py`  | a local and global instantaneous utility function approximation module  |
+| ├── `get_reward.py`  | not in use in our implementation but kept for CityLearn compatibility  |
+| └── `user_reward.py`  | not in use in our implementation but kept for CityLearn compatibility  |
 
 ## References
 - **CityLearn challenge**. [https://www.aicrowd.com/challenges
