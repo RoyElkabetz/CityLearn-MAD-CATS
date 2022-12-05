@@ -10,6 +10,17 @@
 | This repository contains the code for our implementation of a solution for the  [2022 CityLearn challenge](https://github.com/intelligent-environments-lab/CityLearn). |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
+Table of Contents:
+=================
+<!--ts-->
+   * [Introduction](#introduction)
+   * [Adequate Tree-Search Solution](#adequate-tree-search-solution)
+   * [Alternative Rule-Based solution](#alternative-rule-based-solution)
+   * [Tunable parameters](#tunable-parameters)
+   * [Results analysis](#results-analysis)
+   * [Prerequisites](#prerequisites)
+   * [Files in the repository](#files-in-the-repository)
+   * [Credits](#credits)
 
 
 ## Introduction
@@ -35,7 +46,8 @@ The crux of the problem is that:
   $5^{24}=6\cdot 10^{16}$ nodes).
 
 
-## Solution
+
+## Adequate Tree-Search Solution
 
 The net consumption of the $i$'th building at time $t$ is composed of three key elements:
 
@@ -58,7 +70,7 @@ We implement and use:
 - Uniform-Cost Search algorithm (a type of tree-search), which is a modified 
 [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm), to find the next optimal action for each
   building.
-- Various predictors to predict the net consumption of each building for the next time frame ($1$ or $24$h)
+- Various predictors to predict the net consumption of each building for the next time frame ( $1$ or $24$ h)
 - Battery model to translate action to change in battery's state.
 - Depth-selective search, where the search is performed only on specified levels of the tree, and the rest is 
   bridged by steps among which the action is uniformly divided.
@@ -271,7 +283,7 @@ The problem is that the search gets intractable even with a moderate branching f
 $5^{24}\approx 6\cdot 10^{16}$ evaluations, which is impractical even regardless of the limited evaluation time set in
 the context of the challenge.
 
-Therefore, to reach search depth of $24$h, we use a trick we call Depth-Selective Search (DSS). We a priori choose in
+Therefore, to reach search depth of $24$ h, we use a trick we call Depth-Selective Search (DSS). We a priori choose in
 which depths we are going to expand the entire action space (search properly), and in which depths we do rollout using
 constant or predefined actions $a_c$ (see figure below). The action space for $a_c$ is explored in the last pre-rollout step.
 
@@ -295,21 +307,20 @@ Furthermore, for the tree search we need to predict the net consumption for the 
 To this end, we implemented several alternative predictors:
 - **IDX predictor**: This is the simplest predictor, which predicts the net consumption according to the known time
   index and building number.
-- **Dot product**: Generates prediction by finding the maximal dot-product overlap of the past $24$h consumption and
+- **Dot product**: Generates prediction by finding the maximal dot-product overlap of the past $24$ h consumption and
   training data. It is a simple and fast method, but it does not generalize very well.
 - **Multi-Layer Perceptron**: This is a Multi-Layer Perceptron (MLP) network trained to predict the net
-  consumption from the last $24$h history. Its architecture is Time-delayed Neural Net (TDNN), which means that it takes
+  consumption from the last $24$ h history. Its architecture is Time-delayed Neural Net (TDNN), which means that it takes
   the whole history as input, and the output is the prediction for the next 24 time steps at once, without any time
   roll. It features three hidden layers with $128$, $16384$, and $64$ neurons,
   and a ReLU activation function. The network is trained with the Adam optimizer, and the loss function is the mean
   squared error (MSE), with exponential weighting for improving the accuracy at the initial times out of the 24 hours
   output. Given the small dataset, its prediction is not very accurate, but it is a great improvement over the dot
   product.
-  
 
 
 
-## Alternative Rule-based solution
+## Alternative Rule-Based solution
 Alternatively, when not using search, we use a set of rules that defines the next move for each building independently
 (locally), based on the next hour prediction.
 The rules were defined to "flatten" the net consumption curve (closing the temporal gap / phase-shift between 
@@ -347,10 +358,10 @@ Controller parameters:
 - `prediction_method`: The method to use for predicting the net consumption of each building. Choose from:
   - `IDX`: Use the time and building indices for perfect prediction over the training set.
   - `CSV`: Load the predictions from a CSV file.
-  - `DOT`: Generate prediction by finding the maximal dot-product overlap of the past $24$h consumption and training
+  - `DOT`: Generate prediction by finding the maximal dot-product overlap of the past $24$ h consumption and training
     data.
-  - `MLP`: Predict with Multi-Layer Perceptron, using $24$h history of net consumption and global variables.
-- `agent_type`: The type of decision-maker to use for all agents except the last one ($N-1$ agents). Choose from:
+  - `MLP`: Predict with Multi-Layer Perceptron, using $24$ h history of net consumption and global variables.
+- `agent_type`: The type of decision-maker to use for all agents except the last one ( $N-1$ agents). Choose from:
   - `RB-local`: Use Rule-Based agents.
   - `PLAN-local`: Use the Uniform-Cost Search algorithm.
 `last_agent_type`: The type of decision-maker to use for the last agent. Choose from:
@@ -433,13 +444,29 @@ The total utilities of the different configurations are provided in the table be
   rule-based solution were optimized for the specific last building.
 * The red line is the local planner, which as in the single building case, is able to exploit the future net
   consumption and flatten the net consumption curve more efficiently.
-* The purple line is the local planner with the last agent using the global planner.
+* The purple line is the local planner with the last agent using the global planner. This hybrid approach
+  combines the best of both worlds: the planner is able to consider farther future, and flatten the net
+  consumption curve more efficiently for a single building, and the last agent is able to incorporate the residual
+  net consumption of the rest of the district using the rule-based solution.
 
+Below we provide the utility of the different configurations as a function of the time throughout the whole year.
 
 ![decision-makers utilities comparison](figures/experiments/controllers_utility_comparison.png)
 
 > A comparison of the control configurations utilities: No-op, local Rule-Based,local RB with global RB,
   planners with (or w/o) last global RB. 
+
+The colors are the same as in the previous figure, and the black line at $1$ is the baseline, where the agents are not
+allowed to use their batteries (no-op), as all other utilities are normalized to this baseline.
+We see that all decision-makers are able to achieve a utility considerably lower than the baseline, and that their
+trends are similar.
+They are "grouped" in two clusters, one for the rule-based solutions, and one for the planners.
+Within the rule-based solutions, we observe an improvement of the rule-based solution with global (orange)
+over the local one (blue), which is diminished by the randomization of the last agent (green).
+The planners achieve a higher utility, probably because their action space is too descretized, and thus they are
+able to flatten the net consumption curve less precisely. However, also in this case, we observe an improvement
+of the planner with global (purple) over the local one (red).
+
 
  
 Utilities for these examples:
@@ -452,86 +479,160 @@ Utilities for these examples:
 | Local planner  | 0.855           | 0.7708 | 0.8958 | 0.8985     |
 | Local planner + global RB | 0.846           | 0.7405 | 0.9391 | 0.8584    |
 
+--------------------------------------------------------------------------------
+
+In what follows, we provide a more detailed analysis of the different decision-makers.
 
 ### Planner
 
+Here we focus on the special features of our UCS planner.
+
+
 #### Depth-selective search
-`search_depths = {[0,1], [0,1,2,3,4]  [0,1,2,3,8]}`
 
-#### utility weighting
-`utility_weighting = {[1, 1, 1, 1], [1, 0, 0,0], [0, 1, 0, 0], [0, 0, 1, 1]}`
+In the figure below, we compare the district's net consumption for the local planner using different depth values for 
+the search algorithm. We avoid using the global rule-based decision-maker for the last agent, to preserve the raw
+performance of the planner.
 
-#### agents order shuffling
-`random_order = {True, False}`
+![search_depths comparison](figures/experiments/search_depths_comparison.png) --> three subplots stacked vertically for
+`search_depths = {[0,1], [0,1,2,3,4], [0,1,2,3,8]}`.
+
+> A comparison of several search depths for the local planners. The net consumption of the **whole district** (sum of all building's) is
+  shown, and the actions are taken by the planners using `[0,1]`, `[0,1,2,3,4]`, and  `[0,1,2,3,8]` search depths (without last global RB).
+
+The `[0,1]` depth planner (blue) cannot exploit information from the future, and thus it is not able to flatten the net
+consumption curve as efficiently as the other two.
+The `[0,1,2,3,4]` depth planner (orange) is able to flatten the net consumption curve more efficiently, but it is not able
+to performa as good as the `[0,1,2,3,8]` depth planner (green), which is able to utilize information from the far future.
+
+
+
+#### Utility weighting
+
+Using the same configuration as in the previous figure, we leverage the local utility approximation to weight the different
+utilities in the optimization problem. The weights are corresponding to the price, emission, and grid costs, respectively,
+where the grid cost is the sum of the ramping and load factors. The input weights we consider are therefore multiplied
+by `[1/3, 1/3, 1/6, 1/6]` and normalized to sum to one, such that `[1, 1, 1, 1]` corresponds to the original challenge
+weights.
+
+
+![weightings comparison](figures/experiments/weightings_comparison.png) --> four subplots stacked vertically, three 
+corresponding to a different part of the utility (where the grid cost is combined), and the last to the total.
+Each panel with four lines for the four `utility_weighting = {[1, 1, 1, 1], [1, 0, 0,0], [0, 1, 0, 0], [0, 0, 1, 1]}`.
+
+> A comparison of different utility weightings for the local planners. The original (environment's) utility is
+    shown, and the actions are taken by the planners using `[1, 1, 1, 1]`, `[1, 0, 0, 0]`, `[0, 1, 0, 0]`, and `[0, 0, 1, 1]`
+    weightings (without last global RB).
+
+Unsurprisingly, each utility weighting pulls the decision-maker towards its own utility.
+
+The time-averaged utility of the different weightings are:
+
+| Utility weighting | Utility (total) | Price cost | Emission cost | Grid cost |
+|-------------------|-----------------|------------|---------------|-----------|
+| `[1, 1, 1, 1]`    |                 |            |               |           |
+| `[1, 0, 0,0]`     |                 |            |               |           |
+| `[0, 1, 0, 0]`    |                 |            |               |           |
+| `[0, 0, 1, 1]`    |                 |            |               |           |
+
+
+
+#### Agents order shuffling
+
+We consider the effect of shuffling the order of the agents, where the last agent that uses rule-based decision-maker
+is randomly selected at each time step to distribute the altruistic behaviour across the district.
+
+![order shuffling comparison](figures/experiments/shuffling_comparison.png) --> two subplots stacked vertically, one for
+a single building net consumption, and one for the district's net consumption.
+Each panel with three lines for the four `random_order = {True, False}` and no-op.
+
+> A comparison of the effect of shuffling the order of the agents. The net consumption of a **single building** is
+  shown (top), and the actions are taken by the planners using `[0,1,2,3,8]` search depth (with last global RB).
+  Below, the net consumption of the **whole district** (sum of all building's) is presented.
+
+We observe that the shuffling of the order of the agents each time step introduces a negative effect on the performance,
+as the future is "cropped" for the agents whenever they are selected to use as the rule-based altruistic decision-maker.
+
+The total (time-averaged) utility of these two experiments are: 
+
+| Random order | Utility (total) |
+|--------------|-----------------|
+| `True`       |                 | 
+| `False`      |                 | 
+
+
 
 ### Rule-based
 
-w/o agents randomization.
+Here we use the special rule-based decision-maker, and focus on the effect of the global decision-maker.
+To this end, we avoid agents randomization, and present the egoistic and altruistic behaviours of the last agent 
+with and without the global decision-maker, and their effect on the district's net consumption.
 
-| last_agent_type | last building's (4) net consumption | whole district net consumption |
-|-----------------|-------------------------------------|--------------------------------|
-| `RB-local`      | graph  [makes sense]                | graph                          |
-| `RB-global`     | graph                               | graph[makes sense]             |
+| last_agent_type | last building's (4) net consumption                                    | whole district net consumption                                                 |
+|-----------------|------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| `RB-local`      | ![RB-local-last](figures/experiments/rb_local_last.png)  [makes sense] | ![RB-local-district](figures/experiments/rb_local_district.png)                |
+| `RB-global`     | ![RB-global-last](figures/experiments/rb_global_last.png)              | ![RB-global-district](figures/experiments/rb_global_district.png)[makes sense] |
  
+
+The global decision-maker seems to not take the optimal actions for itself (bottom left compared to top left), but
+it is able to flatten the net consumption curve of the whole district (bottom right compared to top right).
+
+
+
 
 ### Summary
 
-Synergizing imperfect planners with last RB agent is the best.
-
+The rule-based solution at this stage is superior to the planner, as it is able to flatten the net consumption curve more precisely.
+However, the special abilities of the planner to incorporate information from the far future, are anticipated to be
+able to improve the performance of the planner.
+Moreover, we found that synergizing imperfect planners with last RB agent is a beneficial approach, as it is able to
+exploit both far future (local) information and the accurate global information required for "polishing" the net consumption curve.
+Note that as any planner, this solution is only as good as its function predictor, and thus it is expected to be
+able to perform better with an improved one.
 
 
 
 ## Prerequisites
-You can create the environment using the requirements.txt file or the environment.yml file, both should work fine.  
+TODO: update requirements.txt or remove it.
+Maybe it will also work without these, and it's enough to refer to the requirements.txt in the main repo.
 
 | Library      | Version |
 |--------------|---------|
 | `python`     | 3.9.13  |
 | `matplotlib` | 3.5.2   |
 | `tqdm`       | 4.64.1  |
-| `torch`      | 1.12.1  |
 
 **plus** the CityLearn package itself, with its dependencies.
 Note to get the 1.3.6 version, from:
 [https://github.com/intelligent-environments-lab/CityLearn](https://github.com/intelligent-environments-lab/CityLearn)
 
 
+
 ## Files in the repository
 
 TODO: complete!
 
-| File/ folder name   <div style="width:250px"></div>| Purpose                                                           |
+| File/ folder name               | Purpose                                                           |
 |---------------------------------|-------------------------------------------------------------------|
-| `main.py`                      | main script for locally evaluating the model on the training data |
+| `main.py`                       | main script for locally evaluating the model on the training data |
 | `utils.py`                      | utility functions for the main script                             |
-| `agents`                        | folder for the agents' modules                                           |
-| ├── `battery_model_rb_agent.py` | rule-based agent with a battery model                              |
-| ├── `brute_force_day_agent.py`  | planner agent combined with a rule-based agent                              |
-| └── `controller.py`             | the multi-agent control class             |
-| `battery`                        | folder for the battery model modules                                           |
-| ├── `BATTERY.md` | explanation of the battery model |
-| ├── `battery_model.py`  | battery model class |
-| ├── `env_battery_model.py`  | battery model class as it is written in the CityLearn environment |
-| └── `tree_search.py`  | the tree search algorithm (UCS) implementation |
-| `data`                        | the CityLearn phase 1 data and the data needed for MLP training and prediction                                           |
-| `figures`                        | figures for README files                                           |
-| `net_consumption_mlp`  | folder for the MLP implementation                                           |
-| `notebooks`  | folder for notebooks collection |
-| `predictors`  | folder for predictor modules |
-| └── `predictor_wrapper.py`  | a wrapper for the different predictors being used  |
-| `rewards`  | folder for reward and utility modules |
-| ├── `agent_inst_u.py`  | a local instantaneous utility function approximation module  |
-| ├── `agent_inst_u_with_last.py`  | a local and global instantaneous utility function approximation module  |
-| ├── `get_reward.py`  | not in use in our implementation but kept for CityLearn compatibility  |
-| └── `user_reward.py`  | not in use in our implementation but kept for CityLearn compatibility  |
+| `evaluation_experiment.py`      | script for                                                        |
+| `agents`                        | folder for the agents                                             |
+| ├── `battery_model_rb_agent.py` |                                                                   |
+| └── `controller.py`             |                                                                   |
+
+
 
 ## References
 - **CityLearn challenge**. [https://www.aicrowd.com/challenges
   /neurips-2022-citylearn-challenge](https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge)
 
 
-## Contact
 
-Gal Ness - [gness67@gmail.com](mailto:gness67@gmail.com)
+## Credits
 
-Roy Elkabetz - [elkabetzroy@gmail.com](mailto:elkabetzroy@gmail.com)
+This solution and its repository was developed by:
+
+* Gal Ness - gness67{at}gmail.com
+
+* Roy Elkabetz - elkabetzroy{at}gmail.com
