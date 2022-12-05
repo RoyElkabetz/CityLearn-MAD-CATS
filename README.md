@@ -372,16 +372,34 @@ Planner parameters:
 
 ## Results analysis
 
+Here we review some results to highlight the differences between the different methods.
+
 ### Decision-makers comparison
 
 We compare the performance of the different decision-makers, and first observe how they affect the net-consumption
-trajectory of an individual building and the whole district.
+trajectory of an individual building and then the whole district.
+
+We pick an arbitrary time frame (6500-6800) and plot the net consumption of the first building in the following
+figure (black line), this is the total consumption for the baseline case, where the agents are not allowed to
+use their batteries. Namely, performing a series of no-op actions.
+The blue line is the net consumption of the same building when it uses its battery, according to the rule-based
+solution, and the orange line is the net consumption when the agent uses the search algorithm.
 
 ![decision-makers comparison, single building](figures/experiments/dm_net_consumption_comparison_building_0.png)
 
 > A comparison of the decision-makers. The net consumption of a **single building** is shown,
   and the actions are taken by the different decision-makers.
- 
+
+We can see that the rule-based solution is able to flatten the net consumption curve at the first dip, where it
+charges the battery for few consecutive hours, until it is full and it reduces to the baseline consumption.
+The search algorithm, on the other hand, spreads the charge over a longer time frame within the dip.
+This is because the search algorithm is able to see the future net consumption, and thus it can charge the battery
+more efficiently.
+This is also the reason why the search algorithm is able to better compensate the net consumption curve at the first
+peak.
+
+Next, we compare the net consumption all the buildings in the district, and we see that this feature is even more
+prominent (see, for example, the red-marked dip and following peak).
  
 ![decision-makers comparison, few single buildings](figures/experiments/dm_net_consumption_comparison_all.png)
 
@@ -389,11 +407,33 @@ trajectory of an individual building and the whole district.
   **single building** is shown, and the actions are taken by the different decision-makers for each building.
 
 
+We also observe that the general trend of the net consumption is similar for all the buildings, and the differences
+are mainly in the high-frequency fluctuations.
+We therefore focus on the total net consumption of the district, and plot it in the following figure.
+
 ![decision-makers comparison, control configurations](figures/experiments/controllers_net_consumption_comparison.png)
 
 > A comparison of the control configurations. The net consumption of the **whole district** (sum of all building's) is
   shown, and the actions are taken by the different decision-makers in each control configuration: No-op, local
   Rule-Based,local RB with global RB, planners with (or w/o) last global RB.
+
+Here we compare the net consumption of the whole district, with additional control configurations.
+The black line is again the baseline, where the agents are not allowed to use their batteries, and the colored
+lines are the different control configurations.
+The total utilities of the different configurations are provided in the table below.
+* Blue is the local Rule-Based solution, where each agent plays egoistically according to the Rule-Based policy.
+  This one is similar to the previous figure, but now we get the averaging effect of the district.
+* Orange is the local Rule-Based solution with the last agent using the global Rule-Based policy, thus incorporating
+  the residual net consumption of the rest of the district (altruism).
+  We can see that this configuration is able to flatten the net consumption curve more precisely, and thus
+  achieve a utility.
+* Green is the same as the orange one, but here we introduce randomization in the order of the buildings, such that
+  the last agent is not always the same building, to distribute the altruistic behaviour across the district.
+  This configuration results in a slightly higher utility than the previous one, because the coefficients of the 
+  rule-based solution were optimized for the specific last building.
+* The red line is the local planner, which as in the single building case, is able to exploit the future net
+  consumption and flatten the net consumption curve more efficiently.
+* The purple line is the local planner with the last agent using the global planner.
 
 
 ![decision-makers utilities comparison](figures/experiments/controllers_utility_comparison.png)
