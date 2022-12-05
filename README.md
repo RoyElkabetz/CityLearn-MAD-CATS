@@ -334,7 +334,7 @@ An important hyperparameter is thus the number of buildings that use the group r
 building (which is fully knowledgeable) make its decisions based on the district's total net consumption, or shall
 more agents (from the end) take altruistic actions?
 
-![rule-based solution](figures/rb.svg)
+![rule-based solution](figures/rb_agent_diagram.svg)
 
 > Rule-based solution for a single building
 
