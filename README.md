@@ -612,15 +612,71 @@ Note to get the 1.3.6 version, from:
 
 TODO: complete!
 
-| File/ folder name               | Purpose                                                           |
+| File/ folder name   <div style="width:250px"></div>| Purpose                                                           |
 |---------------------------------|-------------------------------------------------------------------|
-| `main.py`                       | main script for locally evaluating the model on the training data |
+| `main.py`                      | main script for locally evaluating the model on the training data |
 | `utils.py`                      | utility functions for the main script                             |
-| `evaluation_experiment.py`      | script for                                                        |
-| `agents`                        | folder for the agents                                             |
-| ├── `battery_model_rb_agent.py` |                                                                   |
-| └── `controller.py`             |                                                                   |
+| `agents`                        | folder for the agents' modules                                           |
+| ├── `battery_model_rb_agent.py` | rule-based agent with a battery model                              |
+| ├── `brute_force_day_agent.py`  | planner agent combined with a rule-based agent                              |
+| └── `controller.py`             | the multi-agent control class             |
+| `battery`                        | folder for the battery model modules                                           |
+| ├── `BATTERY.md` | explanation of the battery model |
+| ├── `battery_model.py`  | battery model class |
+| ├── `env_battery_model.py`  | battery model class as it is written in the CityLearn environment |
+| └── `tree_search.py`  | the tree search algorithm (UCS) implementation |
+| `data`                        | the CityLearn phase 1 data and the data needed for MLP training and prediction                                           |
+| `figures`                        | figures for README files                                           |
+| `net_consumption_mlp`  | folder for the MLP implementation                                           |
+| `notebooks`  | folder for notebooks collection |
+| `predictors`  | folder for predictor modules |
+| └── `predictor_wrapper.py`  | a wrapper for the different predictors being used  |
+| `rewards`  | folder for reward and utility modules |
+| ├── `agent_inst_u.py`  | a local instantaneous utility function approximation module  |
+| ├── `agent_inst_u_with_last.py`  | a local and global instantaneous utility function approximation module  |
+| ├── `get_reward.py`  | not in use in our implementation but kept for CityLearn compatibility  |
+| └── `user_reward.py`  | not in use in our implementation but kept for CityLearn compatibility  |
 
+
+---
+
+
+
+├── `README.md`\
+├── `agents` - folder for the agents' modules      \
+│   ├── `battery_model_rb_agent.py` - rule-based agent with a battery model   \
+│   ├── `brute_force_day_agent.py` - planner agent combined with a rule-based agent    \
+│   └── `controller.py` - the multi-agent control class   \
+├── `battery` - folder for the battery model modules       \
+│   |── `BATTERY.md` - explanation of the battery model \
+│   ├── `battery_model.py` - battery model class\
+│   ├── `battery_model_new.py` - battery model class (second version)\
+│   ├── `env_battery_model.py` - battery model class as it is written in the CityLearn environment \
+│   └── `tree_search.py` - the tree search algorithm (UCS) implementation \
+├── `data` - the CityLearn phase 1 data and the data needed for MLP training and prediction        \
+├── `environment.yml`\
+├── `figures` - figures for README files \
+├── `main.py` - main script for locally evaluating the model on the training data \
+├── `net_consumption_mlp` - folder for the MLP implementation\
+│   ├── `data_preprocessing.py` - CityLearn data preprocessor for MLP training\
+│   ├── `eval_exp_mlp.py` - MLP evaluator\
+│   ├── `main_mlp.py` - main module for MLP training\
+│   ├── `mlp_model.py` - the MLP class\
+│   ├── `mlp_predictor.py` - a CityLearn MLP-based predictor\
+├── `notebooks` - folder for notebooks collection\
+├── `predictors` - folder for predictor modules\
+│   ├── `check_predictors.py`\
+│   ├── `consumption_predictors.py`\
+│   └── `predictors_wrapper.py` - a wrapper for the different predictors being used  \
+├── `requirements.txt`\
+├── `rewards` - folder for reward and utility modules\
+│   ├── `agent_inst_u.py` - a local instantaneous utility function approximation module  \
+│   ├── `agent_inst_u_with_last.py` - a local and global instantaneous utility function approximation module \
+│   ├── `get_reward.py` - not in use in our implementation but kept for CityLearn compatibility \
+│   └── `user_reward.py` - not in use in our implementation but kept for CityLearn compatibility \
+└── `utils.py` - utility functions for the main script 
+
+---
 
 
 ## References
