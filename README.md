@@ -494,16 +494,15 @@ In the figure below, we compare the district's net consumption for the local pla
 the search algorithm. We avoid using the global rule-based decision-maker for the last agent, to preserve the raw
 performance of the planner.
 
-![search_depths comparison](figures/experiments/search_depths_comparison.png) --> three subplots stacked vertically for
-`search_depths = {[0,1], [0,1,2,3,4], [0,1,2,3,8]}`.
+![search_depths comparison](figures/experiments/planner_controllers_net_consumption_comparison.png) 
 
 > A comparison of several search depths for the local planners. The net consumption of the **whole district** (sum of all building's) is
-  shown, and the actions are taken by the planners using `[0,1]`, `[0,1,2,3,4]`, and  `[0,1,2,3,8]` search depths (without last global RB).
+  shown, and the actions are taken by the planners using `[0,1]`, `[0,1,2,3]`, and  `[0,1,2,8]` search depths (without last global RB).
 
 The `[0,1]` depth planner (blue) cannot exploit information from the future, and thus it is not able to flatten the net
 consumption curve as efficiently as the other two.
-The `[0,1,2,3,4]` depth planner (orange) is able to flatten the net consumption curve more efficiently, but it is not able
-to performa as good as the `[0,1,2,3,8]` depth planner (green), which is able to utilize information from the far future.
+The `[0,1,2,3]` depth planner (orange) is able to flatten the net consumption curve more efficiently, but it is not able
+to performa as good as the `[0,1,2,8]` depth planner (green), which is able to utilize information from the far future.
 
 
 
@@ -593,7 +592,8 @@ able to perform better with an improved one.
 
 
 ## Prerequisites
-You can create the environment using the requirements.txt file or the environment.yml file, both should work fine. 
+You can create the environment using the requirements.txt file or the environment.yml file, both should work fine.
+
 | Library      | Version |
 |--------------|---------|
 | `python`     | 3.9.13  |
