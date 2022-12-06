@@ -529,10 +529,10 @@ The time-averaged utility of the different weightings are:
 
 | Utility weighting | Utility (total) | Price cost | Emission cost | Grid cost |
 |-------------------|-----------------|------------|---------------|-----------|
-| `[1, 1, 1, 1]`    |                 |            |               |           |
-| `[1, 0, 0,0]`     |                 |            |               |           |
-| `[0, 1, 0, 0]`    |                 |            |               |           |
-| `[0, 0, 1, 1]`    |                 |            |               |           |
+| `[1, 1, 1, 1]`    |     <span style="color:blue">0.8757</span>     |    0.8102   |   0.9108     |    <span style="color:blue"> 0.9061 </span>    |
+| `[1, 0, 0,0]`     |     0.9039      |   <span style="color:blue">0.7112</span>   |   0.9155      |   1.085  |
+| `[0, 1, 0, 0]`    |     0.962      |    0.8296  |    <span style="color:blue">0.906</span>     |    1.1503  |
+| `[0, 0, 1, 1]`    |     0.9763       |  0.9221    |  1.0185      |  <span style="color:red"> 0.9882 </span>    |
 
 
 
