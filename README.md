@@ -553,8 +553,8 @@ The total (time-averaged) utility of these two experiments are:
 
 | Random order | Utility (total) |
 |--------------|-----------------|
-| `True`       |                 | 
-| `False`      |                 | 
+| `True`       |      0.8759     | 
+| `False`      |      0.8696     | 
 
 
 
