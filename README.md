@@ -337,9 +337,8 @@ as in such times the utility for using the grid power is relatively lower.
 
 The rules are defined in two cases, for a single building and for a group of buildings.
 The essence is the same, just that in the latter case, the input is the net consumption of the group.
-
-Additional tuning was done to the rules, to minimize the utility of the training set, and the parameters for the
-single and group rules were found to be different.
+We also skip the carbon intensity condition for the global case, as flattening the district's curve was found to have 
+a more significant effect on the utility in this case.
 
 An important hyperparameter is thus the number of buildings that use the group rules. Namely, shall only the last
 building (which is fully knowledgeable) make its decisions based on the district's total net consumption, or shall
@@ -577,11 +576,14 @@ it is able to flatten the net consumption curve of the whole district (bottom pa
 The rule-based solution at this stage is superior to the planner, as it is able to flatten the net consumption curve more precisely.
 However, the special abilities of the planner to incorporate information from the far future, are anticipated to be
 able to improve the performance of the planner.
-Moreover, we found that synergizing imperfect planners with last RB agent is a beneficial approach, as it is able to
+Moreover, we found that synergizing imperfect planners with last rule-based agent is a beneficial approach, as it is able to
 exploit both far future (local) information and the accurate global information required for "polishing" the net consumption curve.
-Note that as any planner, this solution is only as good as its function predictor, and thus it is expected to be
+Note that, as any planner-based, this solution is only as good as its function predictor, and thus it is expected to be
 able to perform better with an improved one.
-
+Furthermore, the adequate selection of the search depth enabled the planner to exploit information from the far future.
+Still, we limited it to $8$ h to cope with the computational complexity of the search algorithm as defined in the challenge.
+Extending the search depth to $24$ h (the natural timescale of the problem) is expected to improve the performance of the planner,
+and can be achieved by random rollouts of the function predictor.
 
 
 ## Prerequisites
