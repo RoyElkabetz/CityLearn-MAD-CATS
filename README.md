@@ -562,17 +562,12 @@ The total (time-averaged) utility of these two experiments are:
 
 Here we use the special rule-based decision-maker, and focus on the effect of the global decision-maker.
 To this end, we avoid agents randomization, and present the egoistic and altruistic behaviours of the last agent 
-with and without the global decision-maker, and their effect on the district's net consumption.
+with and without the global decision-maker (top), and their effect on the district's net consumption (bottom).
 
-| last_agent_type | last building's (4) net consumption                                    | whole district net consumption                                                 |
-|-----------------|------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| `RB-local`      | ![RB-local-last](figures/experiments/rb_local_last.png)  [makes sense] | ![RB-local-district](figures/experiments/rb_local_district.png)                |
-| `RB-global`     | ![RB-global-last](figures/experiments/rb_global_last.png)              | ![RB-global-district](figures/experiments/rb_global_district.png)[makes sense] |
- 
 ![RB-local-global_last](figures/experiments/rb_controllers_net_consumption_global_vs_local_last_comparison.png)
 
-The global decision-maker seems to not take the optimal actions for itself (bottom left compared to top left), but
-it is able to flatten the net consumption curve of the whole district (bottom right compared to top right).
+The global decision-maker seems to not take the optimal actions for itself (bottom panel, orange curve), but
+it is able to flatten the net consumption curve of the whole district (bottom panel, orange curve compared to the blue one).
 
 
 
