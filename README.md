@@ -515,9 +515,7 @@ by `[1/3, 1/3, 1/6, 1/6]` and normalized to sum to one, such that `[1, 1, 1, 1]`
 weights.
 
 
-![weightings comparison](figures/experiments/weightings_comparison.png) --> four subplots stacked vertically, three 
-corresponding to a different part of the utility (where the grid cost is combined), and the last to the total.
-Each panel with four lines for the four `utility_weighting = {[1, 1, 1, 1], [1, 0, 0,0], [0, 1, 0, 0], [0, 0, 1, 1]}`.
+![weightings comparison](figures/experiments/utility_weighting_comparison_of_planners_both_legend.png) 
 
 > A comparison of different utility weightings for the local planners. The original (environment's) utility is
     shown, and the actions are taken by the planners using `[1, 1, 1, 1]`, `[1, 0, 0, 0]`, `[0, 1, 0, 0]`, and `[0, 0, 1, 1]`
