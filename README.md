@@ -541,12 +541,9 @@ The time-averaged utility of the different weightings are:
 We consider the effect of shuffling the order of the agents, where the last agent that uses rule-based decision-maker
 is randomly selected at each time step to distribute the altruistic behaviour across the district.
 
-![order shuffling comparison](figures/experiments/shuffling_comparison.png) --> two subplots stacked vertically, one for
-a single building net consumption, and one for the district's net consumption.
-Each panel with three lines for the four `random_order = {True, False}` and no-op.
-
+![order shuffling comparison](figures/experiments/planner_controllers_net_consumption_randomization_comparison.png) 
 > A comparison of the effect of shuffling the order of the agents. The net consumption of a **single building** is
-  shown (top), and the actions are taken by the planners using `[0,1,2,3,8]` search depth (with last global RB).
+  shown (top), and the actions are taken by the planners using `[0,1,4]` search depth (with last global RB).
   Below, the net consumption of the **whole district** (sum of all building's) is presented.
 
 We observe that the shuffling of the order of the agents each time step introduces a negative effect on the performance,
