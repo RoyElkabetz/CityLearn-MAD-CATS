@@ -502,7 +502,9 @@ performance of the planner.
 The `[0,1]` depth planner (blue) cannot exploit information from the future, and thus it is not able to flatten the net
 consumption curve as efficiently as the other two.
 The `[0,1,2,3]` depth planner (orange) is able to flatten the net consumption curve more efficiently, but it is not able
-to performa as good as the `[0,1,2,8]` depth planner (green), which is able to utilize information from the far future.
+to perform as good as the `[0,1,2,8]` depth planner (green), which is able to utilize information from the far future.
+In particular, note the length of the "gaps" between the planner and the no-op trajectories. The `[0,1,2,8]` variant manages
+to open wide ( $~8$ h) gaps while the `[0,1,2,3]` depth planner is restricted to shorter ones, and even further for the `[0,1]` variant.
 
 
 
