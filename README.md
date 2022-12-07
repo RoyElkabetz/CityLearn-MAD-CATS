@@ -293,8 +293,8 @@ correlations in the environment while easing the burden of the exponential branc
 
 ![DSS algorithm](figures/dss.svg)
 
-> Depth Selective Search (DSS) algorithm illustration. We search only in a few selective parts of the tree (yellow),
-  while on the other parts (pink), we use rollout with constant predefined actions. 
+> Depth Selective Search (DSS) algorithm illustration. We search only in a few selective parts of the tree (pink),
+  while on the other parts (yellow), we use rollout with constant predefined actions. 
 
 ### Net consumption prediction
 
