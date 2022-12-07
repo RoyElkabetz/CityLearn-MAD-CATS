@@ -651,7 +651,7 @@ Note to get the 1.3.6 version, from:
 
 ## Credits
 
-This solution and its repository was developed by:
+This solution and its repository were developed by:
 
 * Gal Ness - gness67{at}gmail.com
 
