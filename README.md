@@ -565,7 +565,7 @@ with and without the global decision-maker (top), and their effect on the distri
 
 ![RB-local-global_last](figures/experiments/rb_controllers_net_consumption_global_vs_local_last_comparison.png)
 
-The global decision-maker seems to not take the optimal actions for itself (bottom panel, orange curve), but
+The global decision-maker seems to not take the optimal actions for itself (upper panel, blue curve compared to the orange one), but
 it is able to flatten the net consumption curve of the whole district (bottom panel, orange curve compared to the blue one).
 
 
