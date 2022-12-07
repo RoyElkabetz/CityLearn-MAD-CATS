@@ -363,7 +363,7 @@ Controller parameters:
 - `agent_type`: The type of decision-maker to use for all agents except the last one ( $N-1$ agents). Choose from:
   - `RB-local`: Use Rule-Based agents.
   - `PLAN-local`: Use the Uniform-Cost Search algorithm.
-`last_agent_type`: The type of decision-maker to use for the last agent. Choose from:
+- `last_agent_type`: The type of decision-maker to use for the last agent. Choose from:
   - `RB-local`: Use Rule-Based agent -- *egoistic* decision-maker using only individual net consumption.
   - `RB-global`: Use Rule-Based agent, but with global net consumption -- *altruistic* decision-maker using only
    collective district's net consumption.
