@@ -408,7 +408,7 @@ more efficiently.
 This is also the reason why the search algorithm is able to better compensate the net consumption curve at the first
 peak.
 
-Next, we compare the net consumption all the buildings in the district, and we see that this feature is even more
+Next, we compare the net consumption of all the buildings in the district, and we see that this feature is even more
 prominent (see, for example, the red-marked dip and following peak).
  
 ![decision-makers comparison, few single buildings](figures/experiments/dm_net_consumption_comparison_all.png)
