@@ -436,7 +436,7 @@ The total utilities of the different configurations are provided in the table be
 * Orange is the local Rule-Based solution with the last agent using the global Rule-Based policy, thus incorporating
   the residual net consumption of the rest of the district (altruism).
   We can see that this configuration is able to flatten the net consumption curve more precisely, and thus
-  achieve a utility.
+  achieve a lower utility.
 * Green is the same as the orange one, but here we introduce randomization in the order of the buildings, such that
   the last agent is not always the same building, to distribute the altruistic behaviour across the district.
   This configuration results in a slightly higher utility than the previous one, because the coefficients of the 
