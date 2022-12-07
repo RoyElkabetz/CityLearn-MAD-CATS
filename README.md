@@ -443,7 +443,7 @@ The total utilities of the different configurations are provided in the table be
   rule-based solution were optimized for the specific last building.
 * The red line is the local planner, which as in the single building case, is able to exploit the future net
   consumption and flatten the net consumption curve more efficiently.
-* The purple line is the local planner with the last agent using the global planner. This hybrid approach
+* The purple line is the local planner with the last agent using the global rule-based. This hybrid approach
   combines the best of both worlds: the planner is able to consider farther future, and flatten the net
   consumption curve more efficiently for a single building, and the last agent is able to incorporate the residual
   net consumption of the rest of the district using the rule-based solution.
