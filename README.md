@@ -1,7 +1,5 @@
 # CityLearn MAD CATS (Multi-Agent Distributed Control with Adequate Tree-Search)
 
-| :exclamation: Disclaimer: This repository is currently under development, so be patient with bugs. :exclamation: |
-|------------------------------------------------------------------------------------------------------------------|
  
 <p align="center">
   <img src="figures/logo.jpeg" alt="MAD CATS logo" width="256"/>
